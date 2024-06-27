@@ -1,19 +1,17 @@
-import Image from "next/image";
+import Header from "./components/header";
+import Livepreview from "./components/livepreview";
+import PopProduct from "./components/populaProducts";
 
 export default function Home() {
   return (
     <>
-    <div className="flex  flex-col items-center justify-center h-screen">
+      <Header />
 
-    <h1 className="text-4xl font-extrabold">C-Food&Frozen</h1>
+      <Livepreview />
 
-<h1 className="text-3xl font-semibold">สำหรับทดสอบระบบ</h1>
-
-    </div>
+      <PopProduct />
 
 
     </>
-
-
   );
 }
