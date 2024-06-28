@@ -10,13 +10,13 @@ const Header = () => {
     <>
       <div className=" w-full max-h-[120px] border-b-2 border-cyan-600 shadow-lg">
         <div className="container mx-auto">
-          <div className="flex justify-between items-center h-[120px]">
+          <div className="flex justify-between items-center h-[120px]  sm:justify-center ">
             <Link href="/">
-              <div className="text-black font-bold text-5xl p-8">
+              <div className="text-black font-bold text-5xl p-8 sm:text-center sm:text-1sm">
                 C-Food&Frozen
               </div>
             </Link>
-            <div className="flex items-center space-x-5 gap-4">
+            <div className="flex items-center space-x-5 gap-4 sm:hidden">
               {menuItems.map((item,i) => (
                 <>
                   <Link key={i} href={item.link}>
