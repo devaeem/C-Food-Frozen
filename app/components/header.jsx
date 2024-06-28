@@ -9,21 +9,25 @@ const Header = () => {
   return (
     <>
       <div className=" w-full max-h-[120px] border-b-2 border-cyan-600 shadow-lg">
-        <div className="container mx-auto">
-          <div className="flex justify-between items-center h-[120px]  sm:justify-center ">
+        <div className="px-5 md:container md:mx-auto">
+          <div className="flex  items-center  justify-between  h-[120px]">
             <Link href="/">
-              <div className="text-black font-bold text-5xl p-8 sm:text-center sm:text-1sm">
+              <div className="text-black font-bold md:text-4xl p-8  ">
                 C-Food&Frozen
               </div>
             </Link>
-            <div className="flex items-center space-x-5 gap-4 sm:hidden">
-              {menuItems.map((item,i) => (
+            <div className="hidden md:flex xl:flex lg:flex items-center space-x-5 gap-4  ">
+              {menuItems.map((item, i) => (
                 <>
                   <Link key={i} href={item.link}>
                     <div className="text-black font-bold">{item.name}</div>
                   </Link>
                 </>
               ))}
+            </div>
+
+            <div className="flex items-center justify-between  md:hidden lg:hidden ml-4">
+              <button className="bg-orange-400  p-2 rounded">==</button>
             </div>
           </div>
         </div>
