@@ -20,8 +20,8 @@ export const getProductId = async (id) => {
   return await axios.get(process.env.NEXT_PUBLIC_API + `/product/${id}`);
 }
 
-export const updateProductId = async (editId,data) => {
-  return await axios.put(process.env.NEXT_PUBLIC_API + `/product/${editId}`,data);
+export const updateProductId = async (editId,payload) => {
+  return await axios.put(process.env.NEXT_PUBLIC_API + `/product/${editId}`,payload);
 }
 
 export const delProductId = async (id) => {

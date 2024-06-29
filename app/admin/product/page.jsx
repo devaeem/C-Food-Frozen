@@ -11,7 +11,13 @@ import Alert from "@mui/material/Alert";
 import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import Image from "next/image";
-import { getProduct } from "../../../func/productapi";
+import {
+  getProduct,
+  getProductId,
+  delProductId,
+} from "../../../func/productapi";
+import DialogDel from "../../components/admin/product/dialogDel";
+import DialogEdit from "../../components/admin/product/dialogEdit";
 const Page = () => {
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [productList, setProductList] = useState([]);
@@ -20,7 +26,12 @@ const Page = () => {
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [success, setSuccess] = useState(false);
-
+  const [successEdit, setSuccessEdit] = useState(false);
+  const [del, setDel] = useState(false);
+  const [isOpenDialogDel, setIsOpenDialogDel] = useState(false);
+  const [productData, setProductDataData] = useState({});
+  const [isOpenDialogEdit, setIsOpenDialogEdit] = useState(false);
+  const [editId, setEditId] = useState("");
   useEffect(() => {
     LoadData(search, page, pageSize);
   }, [search, page, pageSize]);
@@ -42,6 +53,40 @@ const Page = () => {
   const handleOpenDialog = () => {
     setIsOpenDialog(true);
   };
+
+  const handleDelProduct = (id) => {
+    delProductId(id)
+      .then((res) => {
+        setIsOpenDialogDel(false);
+        LoadData();
+        setDel(true);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleClickOpenEdit = (id) => {
+    setIsOpenDialogEdit(true);
+    setEditId(id);
+  };
+
+  const handleClickOpenDel = (id) => {
+    setIsOpenDialogDel(true);
+    getDataId(id);
+  };
+
+  const getDataId = (id) => {
+    getProductId(id)
+      .then((res) => {
+        setProductDataData(res.data.product);
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsOpenDialogDel(false);
+      });
+  };
+
   return (
     <AdminLayout>
       <div className="flex flex-col items-start justify-start gap-3">
@@ -51,13 +96,38 @@ const Page = () => {
           <div className="mt-2 p-2 rounded-md">
             <Alert severity="success">
               {" "}
-              ลบหมวดหมู่สินค้าสำเร็จ
+              เพื่มสินค้าสำเร็จ
               <IconButton onClick={() => setSuccess(false)}>
                 <ClearIcon />
               </IconButton>
             </Alert>
           </div>
         )}
+
+        {successEdit && (
+          <div className="mt-2 p-2 rounded-md">
+            <Alert severity="success">
+              {" "}
+              อัพเดพสินค้าสำเร็จ
+              <IconButton onClick={() => setSuccessEdit(false)}>
+                <ClearIcon />
+              </IconButton>
+            </Alert>
+          </div>
+        )}
+
+        {del && (
+          <div className="mt-2 p-2 rounded-md">
+            <Alert severity="success">
+              {" "}
+              ลบสินค้าสำเร็จ
+              <IconButton onClick={() => setDel(false)}>
+                <ClearIcon />
+              </IconButton>
+            </Alert>
+          </div>
+        )}
+
         <div className="py-2">
           <Button
             variant="contained"
@@ -73,7 +143,7 @@ const Page = () => {
             htmlFor="categoryName"
             className="block text-lg font-medium text-gray-700"
           >
-            ค้นหาหมวดหมู่สินค้า
+            ค้นหาสินค้า
           </label>
           <input
             type="text"
@@ -81,13 +151,13 @@ const Page = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="mt-1 block w-50 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg"
             required
-            placeholder="ค้นหาหมวดหมู่สินค้า"
+            placeholder="ค้นหาสินค้า"
             value={search}
           />
         </div>
         {productList.length === 0 ? (
           <div className="mt-4 p-2 rounded-md">
-            <Alert severity="info">ไม่พบข้อมูลหมวดหมู่สินค้า</Alert>
+            <Alert severity="info">ไม่พบข้อมูลสินค้า</Alert>
           </div>
         ) : (
           <div className="flex-1 mt-8 w-full">
@@ -180,12 +250,14 @@ const Page = () => {
                             <Button
                               variant="contained"
                               startIcon={<CreateIcon />}
+                              onClick={() => handleClickOpenEdit(product._id)}
                             >
                               แก้ไข
                             </Button>
                             <Button
                               variant="outlined"
                               startIcon={<DeleteIcon />}
+                              onClick={() => handleClickOpenDel(product._id)}
                             >
                               ลบ
                             </Button>
@@ -216,6 +288,27 @@ const Page = () => {
           }}
           setSuccess={setSuccess}
           loadData={LoadData}
+        />
+      )}
+
+      {isOpenDialogEdit && (
+        <DialogEdit
+          handleClose={() => {
+            setIsOpenDialogEdit(false);
+          }}
+          editId={editId}
+          setSuccessEdit={setSuccessEdit}
+          LoadData={LoadData}
+        />
+      )}
+
+      {isOpenDialogDel && (
+        <DialogDel
+          handleClose={() => {
+            setIsOpenDialogDel(false);
+          }}
+          productData={productData}
+          handleDelProduct={handleDelProduct}
         />
       )}
     </AdminLayout>
