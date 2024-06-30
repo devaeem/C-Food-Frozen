@@ -73,7 +73,6 @@ const Page = () => {
   const handleClickOpenDel = (id) => {
     setIsOpenDialogDel(true);
     getDataId(id);
-    // console.log("delete", id);
   };
 
   const handleClickOpenEdit = (id) => {

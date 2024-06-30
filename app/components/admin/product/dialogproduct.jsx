@@ -145,7 +145,7 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
                 fullWidth
                 freeSolo
                 onChange={(event, newValue) => {
-                  console.log("newValue", newValue);
+
                   setCategoryRef(newValue?._id || "");
                 }}
                 getOptionLabel={(option) => option.name || ""}
