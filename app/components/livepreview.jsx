@@ -30,19 +30,21 @@ const Livepreview = () => {
   return (
     <>
       <div className="mt-7 pt-5 h-full flex items-center justify-center">
-        <div className="w-full max-w-[100rem] h-full">
+        <div className="w-full max-w-[100rem] h-full relative">
           <Carousel className="w-full h-full">
             <CarouselContent className="flex h-full">
               {images.map((data, index) => (
                 <CarouselItem key={index} className="flex-grow-0 h-full">
-                  <div className="p-1 h-full">
+                  <div className="p-1">
                     <Image
                       src={data.image}
                       alt={`Image`}
-                      layout="responsive"
+                      layout="fit"
                       width={1592}
                       height={488}
-                      className="w-full h-auto rounded-lg shadow-lg"
+                      objectFit="cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="w-full h-full rounded-lg shadow-lg"
                     />
                   </div>
                 </CarouselItem>
