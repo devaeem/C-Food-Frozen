@@ -13,7 +13,6 @@ import IconButton from "@mui/material/IconButton";
 import Autocomplete from "@mui/material/Autocomplete";
 import CloseIcon from "@mui/icons-material/Close";
 import Input from "@mui/material/Input";
-import Badge from "@mui/material/Badge";
 import { getCategories } from "../../../../func/api";
 import { createProduct } from "../../../../func/productapi";
 const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
@@ -75,7 +74,7 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
     }
   };
 
-  console.log("imageBase64", imageBase64);
+
 
   const handleAddProduct = () => {
     const payload = {
