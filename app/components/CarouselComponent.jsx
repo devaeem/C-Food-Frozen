@@ -20,6 +20,26 @@ const CarouselComponent = ({ productData }) => {
     centerMode: true,
     focusOnSelect: true,
     beforeChange: (current, next) => setMainImageIndex(next),
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+        },
+      },
+      {
+        breakpoint: 640,
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+    ],
   };
 
   return (
@@ -27,9 +47,14 @@ const CarouselComponent = ({ productData }) => {
       {/* Main Image */}
       <div className="mb-4 w-full h-full">
         <img
-          className="w-full h-full object-fill"
+           className="w-full h-auto object-cover"
           src={productData.image[mainImageIndex]}
           alt="Main Product Image"
+          style={{
+            maxWidth: "100%", // ให้รูปภาพไม่เกินความกว้างของ container
+            height: "auto", // ให้ความสูงปรับอัตโนมัติตามสัดส่วน
+            maxHeight: "300px", // กำหนดความสูงสูงสุดของรูปภาพ
+          }}
         />
       </div>
 
@@ -38,11 +63,15 @@ const CarouselComponent = ({ productData }) => {
       <Slider {...settings}>
         {productData.image.map((imgSrc, index) => (
           <div key={index} className="flex-1">
-            <Image
-              className="w-250 h-250 object-cover"
+            <img
+              className="w-full h-auto object-cover"
               src={imgSrc}
-              width={250}
-              height={250}
+              alt={`Additional Image ${index + 1}`}
+              style={{
+                maxWidth: "100%", // ให้รูปภาพไม่เกินความกว้างของ container
+                height: "auto", // ให้ความสูงปรับอัตโนมัติตามสัดส่วน
+                maxHeight: "300px", // กำหนดความสูงสูงสุดของรูปภาพ
+              }}
               alt={`Additional Image ${index + 1}`}
             />
           </div>
