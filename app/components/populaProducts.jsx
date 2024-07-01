@@ -148,7 +148,7 @@ const PopProduct = () => {
                     <>
                       <div key={index} className="card bg-white shadow-md p-4">
                         <Image
-                          src={item.image}
+                          src={item.image[0]}
                           alt="Product 1"
                           className="w-full h-48  object-center cursor-pointer"
                           width={150}

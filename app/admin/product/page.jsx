@@ -226,7 +226,7 @@ const Page = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {product.image ? (
                             <Image
-                              src={product.image}
+                              src={product.image[0]}
                               width={120}
                               height={120}
                               alt="Picture of the author"

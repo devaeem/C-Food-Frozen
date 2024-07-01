@@ -14,6 +14,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import CloseIcon from "@mui/icons-material/Close";
 import Input from "@mui/material/Input";
 import Badge from "@mui/material/Badge";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { getCategories } from "../../../../func/api";
 import { getProductId, updateProductId } from "../../../../func/productapi";
 import Skeleton from "@mui/material/Skeleton";
@@ -62,28 +63,30 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
       });
   };
 
-
-
   const [name, setName] = useState("");
   const [categoryRef, setCategoryRef] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
-  const [imageBase64, setImageBase64] = useState("");
+  const [imageBase64, setImageBase64] = useState([]);
 
   const handleChangeImage = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
+    const files = Array.from(event.target.files);
+    const base64Images = [];
 
-    reader.onloadend = () => {
-      setImageBase64(reader.result);
-    };
-
-    if (file) {
+    files.forEach((file) => {
+      const reader = new FileReader();
       reader.readAsDataURL(file);
-    }
+      reader.onload = () => {
+        base64Images.push(reader.result);
+        // Update state only after all files are read
+        if (base64Images.length === files.length) {
+          setImageBase64((prevImages) => [...prevImages, ...base64Images]);
+        }
+      };
+      reader.onerror = (error) => console.error("Error reading file:", error);
+    });
   };
-
   const handleUpdate = () => {
     const payload = {
       name: data.name,
@@ -105,8 +108,6 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
         console.log(err);
       });
   };
-
-
 
   return (
     <>
@@ -213,33 +214,44 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   label="รูปภาพสินค้า"
                   type="file"
                   fullWidth
-                  inputProps={{ accept: "image/*" }}
+                  inputProps={{ accept: "image/*", multiple: true }}
                   onChange={handleChangeImage}
                   variant="standard"
                 />
               </Grid>
-
               <Grid item xs={12}>
-                <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                  {!imageBase64 && data.image && (
-                    <Image
-                      src={data.image}
-                      width={300}
-                      height={300}
-                      alt="Picture of the author"
-                      style={{ objectFit: "contain" }}
-                    />
-                  )}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                  {/* Render images with delete button */}
+                  {(imageBase64 && imageBase64.length > 0
+                    ? imageBase64
+                    : data.image
+                  ).map((imgSrc, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        position: "relative",
 
-                  {imageBase64 && (
-                    <Image
-                      src={imageBase64}
-                      width={300}
-                      height={300}
-                      alt="Picture of the author"
-                      style={{ objectFit: "contain" }}
-                    />
-                  )}
+                      }}
+                    >
+                      <img
+                        src={imgSrc}
+                        alt={`Image ${index}`}
+                        style={{ objectFit: 'fill', width: '128px', height: '118px' }}
+                      />
+                      <IconButton
+                        style={{
+                          position: "absolute",
+                          top: "5px",
+                          right: "5px",
+                        }}
+                        // onClick={() => handleDeleteImage(index)}
+                      >
+                        <DeleteIcon className="text-red-500" />
+                      </IconButton>
+                      <span>{index === 0 ? 'รูปหลัก' : null}</span>
+
+                    </div>
+                  ))}
                 </div>
               </Grid>
             </Grid>

@@ -49,8 +49,9 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
   const [categoryRef, setCategoryRef] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState([]);
   const [imageBase64, setImageBase64] = useState("");
+  const [images, setImages] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,19 +63,22 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
   };
 
   const handleChangeImage = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
+    const files = Array.from(event.target.files);
+    const base64Images = [];
 
-    reader.onloadend = () => {
-      setImageBase64(reader.result);
-    };
-
-    if (file) {
+    files.forEach((file) => {
+      const reader = new FileReader();
       reader.readAsDataURL(file);
-    }
+      reader.onload = () => {
+        base64Images.push(reader.result);
+        // Update state only after all files are read
+        if (base64Images.length === files.length) {
+          setImages((prevImages) => [...prevImages, ...base64Images]);
+        }
+      };
+      reader.onerror = (error) => console.error("Error reading file:", error);
+    });
   };
-
-
 
   const handleAddProduct = () => {
     const payload = {
@@ -82,7 +86,7 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
       categoryRef,
       price,
       desc: description,
-      image: imageBase64,
+      image: images,
     };
     createProduct(payload)
       .then((res) => {
@@ -94,6 +98,8 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
         console.log(err);
       });
   };
+
+  console.log("images", images);
 
   return (
     <>
@@ -145,7 +151,6 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
                 fullWidth
                 freeSolo
                 onChange={(event, newValue) => {
-
                   setCategoryRef(newValue?._id || "");
                 }}
                 getOptionLabel={(option) => option.name || ""}
@@ -158,18 +163,6 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
                   />
                 )}
               />
-              {/* <TextField
-                required
-                margin="dense"
-                id="categoryRef"
-                name="categoryRef"
-                label="หมวดหมู่สินค้า"
-                type="text"
-                fullWidth
-                value={categoryRef}
-                onChange={handleChange}
-                variant="standard"
-              /> */}
             </Grid>
             <Grid item xs={6}>
               <TextField
@@ -208,24 +201,40 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
                 label="รูปภาพสินค้า"
                 type="file"
                 fullWidth
-                inputProps={{ accept: "image/*" }}
+                inputProps={{ accept: "image/*", multiple: true }}
                 onChange={handleChangeImage}
                 variant="standard"
               />
             </Grid>
 
             <Grid item xs={12}>
-              <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                {imageBase64 && (
-                  <Image
-                    src={imageBase64}
-                    width={300}
-                    height={300}
-                    alt="Picture of the author"
-                    style={{ objectFit: "contain" }}
-                  />
-                )}
-              </div>
+              {images.length > 0 && (
+                <div>
+                  <h3>Uploaded Images:</h3>
+                  <div
+                    style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}
+                  >
+                    {images.map((imageBase64, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          position: "relative",
+                          width: "145px",
+                          height: "145px",
+
+                        }}
+                      >
+                        <Image
+                          src={imageBase64}
+                          alt={`Uploaded image ${index + 1}`}
+                          layout="fill"
+                          objectFit="contain"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </Grid>
           </Grid>
         </DialogContent>

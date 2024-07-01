@@ -1,34 +1,31 @@
 "use client";
-import React,{useEffect,useState} from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Header from "../../components/header";
 import Link from "next/link";
 import Chip from "@mui/material/Chip";
 import Image from "next/image";
-import {
- getProductId,
-} from "../../../func/productapi";
+import { getProductId } from "../../../func/productapi";
+import CarouselComponent from "../../components/CarouselComponent";
 const Page = () => {
   const params = useParams();
   const { id } = params;
 
-  const [productData, setProductDataData] = useState({});
+  const [productData, setProductData] = useState({});
 
   useEffect(() => {
-   getDataId(id)
- }, [id]);
+    getDataId(id);
+  }, [id,productData]);
 
   const getDataId = (id) => {
-   getProductId(id)
-     .then((res) => {
-       setProductDataData(res.data.product);
-     })
-     .catch((err) => {
-       console.log(err);
-     });
- };
-
-
+    getProductId(id)
+      .then((res) => {
+        setProductData(res.data.product);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const products = [
     {
@@ -66,15 +63,9 @@ const Page = () => {
       <div className="container mx-auto mt-8">
         <div className="max-w-7xl mx-auto bg-white rounded-lg overflow-hidden shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="p-8 border-r-2 border-stone-200">
-              <Image
-                className="w-full h-auto object-cover"
-                src={productData.image}
-                width={150}
-                height={150}
-                alt="Picture of the author"
-              />
-            </div>
+            <div className="p-3"> <CarouselComponent productData={productData} /></div>
+
+
             <div className="p-8 flex flex-col justify-center">
               <h1 className="text-gray-900 font-bold text-4xl mb-4">
                 {productData.name}
@@ -89,9 +80,7 @@ const Page = () => {
                 </span>
               </h4>
 
-              <p className="text-gray-600 text-lg mb-6">
-                {productData.desc}
-              </p>
+              <p className="text-gray-600 text-lg mb-6">{productData.desc}</p>
               <p className="text-gray-900 font-bold text-3xl mb-6">
                 ฿{productData.price}
               </p>
