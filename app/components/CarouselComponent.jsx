@@ -30,7 +30,7 @@ const CarouselComponent = ({ productData }) => {
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 1,
         },
       },
       {
@@ -43,28 +43,41 @@ const CarouselComponent = ({ productData }) => {
   };
 
   return (
-    <div className="p-8 border-r-2 border-stone-200">
+    <div className="p-3 border-r-2 border-stone-200">
       {/* Main Image */}
-      <div className="mb-4 w-full h-full">
-        <img
-            className="w-full h-auto md:w-1/2 lg:w-1/3 xl:w-1/4 object-cover"
+      <div className="mb-4 w-full h-[350px]">
+        <Image
+          // className="min-w-full h-auto md:w-full lg:w-full xl:w-full object-cover max-w-7xl"
           src={productData.image[mainImageIndex]}
-          alt="Main Product Image"
+          alt={`Image`}
+          layout="fit"
+          width={1592}
+          height={488}
+          objectFit="cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="w-full h-full rounded-lg shadow-lg"
         />
       </div>
 
       {/* Slider for Additional Images */}
-
       <Slider {...settings}>
         {productData.image.map((imgSrc, index) => (
-          <div key={index} className="flex-1">
-            <img
-               className="w-full h-auto md:w-1/2 lg:w-1/3 xl:w-1/4 object-cover"
-              src={imgSrc}
-
-              alt={`Additional Image ${index + 1}`}
-            />
-          </div>
+          <>
+            <div key={index} className="flex-1 ">
+              <div className="mb-4 w-full h-full">
+                <Image
+                  className="w-[130] h-[130] rounded-lg shadow-lg"
+                  src={imgSrc}
+                  width={150}
+                  height={150}
+                  layout="fit"
+                  objectFit="cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  alt={`Additional Image ${index + 1}`}
+                />
+              </div>
+            </div>
+          </>
         ))}
       </Slider>
     </div>
