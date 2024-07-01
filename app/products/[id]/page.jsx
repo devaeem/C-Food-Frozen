@@ -15,7 +15,7 @@ const Page = () => {
 
   useEffect(() => {
     getDataId(id);
-  }, [id,productData]);
+  }, [id, productData]);
 
   const getDataId = (id) => {
     getProductId(id)
@@ -59,38 +59,72 @@ const Page = () => {
   return (
     <>
       <Header />
+      <div className="mt-8 md:mt-8 lg:mt-4 mx-auto max-w-7xl">
+        <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden ">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-8">
+          <div>
+            <CarouselComponent productData={productData} />
+          </div>
+          <div className="flex flex-col justify-center">
+            <h1 className="text-gray-900 font-bold text-4xl mb-4">
+              {productData.name}
+            </h1>
+            <h4 className="text-gray-400 font-semibold text-xl mb-3">
+              รหัสสินค้า: {id}
+            </h4>
+            <h4 className="text-gray-500 font-semibold text-lg mb-3">
+              หมวดหมู่สินค้า:{" "}
+              <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2">
+                {productData.categoryRef?.name}
+              </span>
+            </h4>
 
-      <div className="container mx-auto mt-8">
-        <div className="max-w-7xl mx-auto bg-white rounded-lg overflow-hidden shadow-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="p-3"> <CarouselComponent productData={productData} /></div>
-
-
-            <div className="p-8 flex flex-col justify-center">
-              <h1 className="text-gray-900 font-bold text-4xl mb-4">
-                {productData.name}
-              </h1>
-              <h4 className="text-gray-400 font-semibold text-1xl mb-3">
-                รหัสสินค้า: {id}
-              </h4>
-              <h4 className="text-gray-500 font-semibold text-lg mb-3">
-                หมวดหมู่สินค้า:{" "}
-                <span>
-                  <Chip label={productData.categoryRef?.name} />
-                </span>
-              </h4>
-
-              <p className="text-gray-600 text-lg mb-6">{productData.desc}</p>
-              <p className="text-gray-900 font-bold text-3xl mb-6">
-                ฿{productData.price}
-              </p>
-              <button className="px-6 py-3 bg-blue-500 text-white text-lg font-bold rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700">
-                สนใจสินค้านี้
-              </button>
-            </div>
+            <p className="text-gray-600 text-lg mb-6">{productData.desc}</p>
+            <p className="text-gray-900 font-bold text-3xl mb-6">
+              ฿{productData.price}
+            </p>
+            <button className="px-6 py-3 bg-blue-500 text-white text-lg font-bold rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700">
+              สนใจสินค้านี้
+            </button>
+          </div>
           </div>
         </div>
       </div>
+
+      {/* <div className="mt-8 md:mt-8 lg:mt-4 md:container md:mx-auto lg:container lg:mx-auto">
+      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-8">
+
+          <div>
+            <CarouselComponent productData={productData} />
+          </div>
+
+
+          <div className="flex flex-col justify-center">
+            <h1 className="text-gray-900 font-bold text-4xl mb-4">
+              {productData.name}
+            </h1>
+            <h4 className="text-gray-400 font-semibold text-xl mb-3">
+              รหัสสินค้า: {id}
+            </h4>
+            <h4 className="text-gray-500 font-semibold text-lg mb-3">
+              หมวดหมู่สินค้า:{" "}
+              <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2">
+                {productData.categoryRef?.name}
+              </span>
+            </h4>
+
+            <p className="text-gray-600 text-lg mb-6">{productData.desc}</p>
+            <p className="text-gray-900 font-bold text-3xl mb-6">
+              ฿{productData.price}
+            </p>
+            <button className="px-6 py-3 bg-blue-500 text-white text-lg font-bold rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700">
+              สนใจสินค้านี้
+            </button>
+          </div>
+        </div>
+      </div>
+    </div> */}
 
       <div className="container mx-auto mt-8">
         <h2 className="text-2xl font-semibold mt-2 py-8">Related Products</h2>
