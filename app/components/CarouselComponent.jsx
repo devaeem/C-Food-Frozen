@@ -47,14 +47,9 @@ const CarouselComponent = ({ productData }) => {
       {/* Main Image */}
       <div className="mb-4 w-full h-full">
         <img
-           className="w-full h-auto object-cover"
+            className="w-full h-auto md:w-1/2 lg:w-1/3 xl:w-1/4 object-cover"
           src={productData.image[mainImageIndex]}
           alt="Main Product Image"
-          style={{
-            maxWidth: "100%", // ให้รูปภาพไม่เกินความกว้างของ container
-            height: "auto", // ให้ความสูงปรับอัตโนมัติตามสัดส่วน
-            maxHeight: "300px", // กำหนดความสูงสูงสุดของรูปภาพ
-          }}
         />
       </div>
 
@@ -64,14 +59,9 @@ const CarouselComponent = ({ productData }) => {
         {productData.image.map((imgSrc, index) => (
           <div key={index} className="flex-1">
             <img
-              className="w-full h-auto object-cover"
+               className="w-full h-auto md:w-1/2 lg:w-1/3 xl:w-1/4 object-cover"
               src={imgSrc}
-              alt={`Additional Image ${index + 1}`}
-              style={{
-                maxWidth: "100%", // ให้รูปภาพไม่เกินความกว้างของ container
-                height: "auto", // ให้ความสูงปรับอัตโนมัติตามสัดส่วน
-                maxHeight: "300px", // กำหนดความสูงสูงสุดของรูปภาพ
-              }}
+
               alt={`Additional Image ${index + 1}`}
             />
           </div>
