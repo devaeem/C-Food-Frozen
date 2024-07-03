@@ -233,14 +233,14 @@ const Page = () => {
                             <Button
                               variant="contained"
                               startIcon={<CreateIcon />}
-                              onClick={() => handleClickOpenEdit(category._id)}
+                              onClick={() => handleClickOpenEdit(category.id)}
                             >
                               แก้ไข
                             </Button>
                             <Button
                               variant="outlined"
                               startIcon={<DeleteIcon />}
-                              onClick={() => handleClickOpenDel(category._id)}
+                              onClick={() => handleClickOpenDel(category.id)}
                             >
                               ลบ
                             </Button>

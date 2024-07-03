@@ -55,7 +55,7 @@ const Page = () => {
     e.preventDefault();
 
     const payload = {
-      image: image64,
+      images: image64,
     };
 
     createBanner(payload)
@@ -221,12 +221,12 @@ const getDataId = (id) => {
                     <tbody className="bg-white divide-y divide-gray-200  ">
                       <tr key={index}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {index+1}
+                          {index + 1}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {banner.image ? (
+                          {banner.images ? (
                             <Image
-                              src={banner.image}
+                               src={banner.images}
                               width={120}
                               height={120}
                               alt="Picture of the author"
@@ -242,14 +242,14 @@ const getDataId = (id) => {
                             <Button
                               variant="contained"
                               startIcon={<CreateIcon />}
-                               onClick={() => handleClickOpenEdit(banner._id)}
+                               onClick={() => handleClickOpenEdit(banner.id)}
                             >
                               แก้ไข
                             </Button>
                             <Button
                               variant="outlined"
                               startIcon={<DeleteIcon />}
-                               onClick={() => handleClickOpenDel(banner._id)}
+                               onClick={() => handleClickOpenDel(banner.id)}
                             >
                               ลบ
                             </Button>

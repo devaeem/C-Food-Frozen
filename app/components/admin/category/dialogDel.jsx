@@ -16,7 +16,7 @@ const DialogDel = ({handleClose,categoryData,handleDelCategory}) => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {categoryData._id}
+          {categoryData.id}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -25,7 +25,7 @@ const DialogDel = ({handleClose,categoryData,handleDelCategory}) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>ยกเลิก</Button>
-          <Button onClick={() => handleDelCategory(categoryData._id)} >
+          <Button onClick={() => handleDelCategory(categoryData.id)} >
             ลบหมวดหมู่
           </Button>
         </DialogActions>

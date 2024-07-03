@@ -26,7 +26,7 @@ const DialogDel = ({handleClose,bannerData,handleDelBanner}) => {
         <DialogActions>
           <Button onClick={handleClose}>ยกเลิก</Button>
           <Button
-          onClick={() => handleDelBanner(bannerData._id)}
+          onClick={() => handleDelBanner(bannerData.id)}
           >
             ลบ Banner
           </Button>

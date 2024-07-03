@@ -60,7 +60,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
 
   const handleUpdate = () => {
     const payload = {
-      image: imageBase64 || data.image,
+      images: imageBase64 || data.images,
     };
 
     updateBannerId(editId, payload)
