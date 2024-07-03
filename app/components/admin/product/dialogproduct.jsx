@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import Image from "next/image";
+import axios from "axios";
 import AddIcon from "@mui/icons-material/Add";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
@@ -47,7 +48,7 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
 
   const [name, setName] = useState("");
   const [categoryRef, setCategoryRef] = useState("");
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState([]);
   const [imageBase64, setImageBase64] = useState("");
@@ -62,6 +63,13 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
     if (name === "image") setImage(value);
   };
 
+  console.log("str", {
+    name,
+    categoryRef,
+    price,
+    description,
+  });
+
   const handleChangeImage = (event) => {
     const files = Array.from(event.target.files);
     const base64Images = [];
@@ -71,7 +79,6 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
       reader.readAsDataURL(file);
       reader.onload = () => {
         base64Images.push(reader.result);
-        // Update state only after all files are read
         if (base64Images.length === files.length) {
           setImages((prevImages) => [...prevImages, ...base64Images]);
         }
@@ -81,15 +88,25 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
   };
 
   const handleAddProduct = () => {
+    // const payload = {
+    //   name: "สินค้าลูกชิ้น 4",
+    //   desc: "สินค้าสำหรับทดสอบ 5",
+    //   price: 5000,
+    //   categoryId: "632daf96-ba3b-4f7b-bb9d-83b63862fc7a",
+    // };
+
     const payload = {
-      name,
-      categoryRef,
-      price,
+      name: name,
+      categoryId: categoryRef,
+      price: Number(price),
       desc: description,
-      image: images,
+      Image: images,
     };
+    console.log('payload', payload)
+
     createProduct(payload)
       .then((res) => {
+        console.log("res", res);
         setSuccess(true);
         loadData();
         handleClose();
@@ -98,8 +115,6 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
         console.log(err);
       });
   };
-
-  console.log("images", images);
 
   return (
     <>
@@ -151,7 +166,8 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
                 fullWidth
                 freeSolo
                 onChange={(event, newValue) => {
-                  setCategoryRef(newValue?._id || "");
+                  console.log("newValue", newValue);
+                  setCategoryRef(newValue?.id || "");
                 }}
                 getOptionLabel={(option) => option.name || ""}
                 renderInput={(params) => (
@@ -221,7 +237,6 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
                           position: "relative",
                           width: "145px",
                           height: "145px",
-
                         }}
                       >
                         <Image

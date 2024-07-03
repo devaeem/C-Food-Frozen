@@ -25,7 +25,7 @@ const DialogDel = ({handleClose,productData,handleDelProduct}) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>ยกเลิก</Button>
-          <Button onClick={() => handleDelProduct(productData._id)} >
+          <Button onClick={() => handleDelProduct(productData.id)} >
             ลบสินค้า
           </Button>
         </DialogActions>

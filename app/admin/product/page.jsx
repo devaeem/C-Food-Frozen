@@ -38,7 +38,7 @@ const Page = () => {
   const LoadData = (search, page, pageSize) => {
     getProduct(search, page, pageSize)
       .then((res) => {
-        setProductList(res.data.product);
+        setProductList(res.data.products);
         setTotalPages(res.data.totalPages);
       })
       .catch((err) => {
@@ -224,9 +224,9 @@ const Page = () => {
                           {product.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {product.image ? (
+                          {product.images[0]?.url ? (
                             <Image
-                              src={product.image[0]}
+                              src={product.images[0]?.url}
                               width={120}
                               height={120}
                               alt="Picture of the author"
@@ -237,7 +237,7 @@ const Page = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {product.categoryRef?.name}
+                          {product.Category?.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {product.price}
@@ -250,14 +250,14 @@ const Page = () => {
                             <Button
                               variant="contained"
                               startIcon={<CreateIcon />}
-                              onClick={() => handleClickOpenEdit(product._id)}
+                              onClick={() => handleClickOpenEdit(product.id)}
                             >
                               แก้ไข
                             </Button>
                             <Button
                               variant="outlined"
                               startIcon={<DeleteIcon />}
-                              onClick={() => handleClickOpenDel(product._id)}
+                              onClick={() => handleClickOpenDel(product.id)}
                             >
                               ลบ
                             </Button>
