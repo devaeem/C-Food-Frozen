@@ -49,7 +49,7 @@ const Nav = ({setIsSidebarOpen,toggleSidebar}) => {
               <Button
                 variant="contained"
                 startIcon={<LogoutIcon />}
-                className="bg-red-800 hover:bg-red-600 text-white hidden  md:flex lg:flex"
+                className="bg-red-800 hover:bg-red-600 text-white   md:flex lg:flex"
               >
                 ออกจากระบบ
               </Button>
