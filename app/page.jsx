@@ -1,3 +1,4 @@
+import React from "react";
 import Header from "./components/header";
 import Livepreview from "./components/livepreview";
 import PopProduct from "./components/populaProducts";
@@ -10,9 +11,13 @@ export default function Home() {
       <Header />
 
       <Livepreview />
-
+      <div className="h-screen">
       <PopProduct />
+      </div>
+      <div className="fixed">
       <Footer />
+      </div>
+
 
     </>
   );

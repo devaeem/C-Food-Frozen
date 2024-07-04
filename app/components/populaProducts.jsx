@@ -11,7 +11,8 @@ import Alert from "@mui/material/Alert";
 import Skeleton from "@mui/material/Skeleton";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-const PopProduct = () => {
+import Link from "next/link";
+const PopProduct = ({ fgb, allpage }) => {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -100,7 +101,9 @@ const PopProduct = () => {
           </Grid>
         </div>
         <div className="flex items-center justify-center mt-4">
-          <h1 className="text-2xl font-semibold">สินค้ายอดนิยม</h1>
+          <h1 className="text-2xl font-semibold">
+            {fgb ? fgb : "สินค้ายอดนิยม"}
+          </h1>
         </div>
         {productList.length === 0 ? (
           <div className="mt-4 p-2 rounded-md">
@@ -176,11 +179,15 @@ const PopProduct = () => {
             )}
           </>
         )}
-        <div className="flex mt-4 items-center justify-end">
-          <h1 className="text-1xl md:text-1xl lg:text-1xl font-semibold text-gray-800">
-            ดูสินค้าทั้งหมด
-          </h1>
-        </div>
+        {!allpage && (
+          <div className="flex mt-4 items-center justify-end">
+            <Link href="/allproduct">
+              <h1 className="text-1xl md:text-1xl lg:text-1xl font-semibold text-gray-800">
+                ดูสินค้าทั้งหมด
+              </h1>
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="flex mt-9 items-center justify-center">
