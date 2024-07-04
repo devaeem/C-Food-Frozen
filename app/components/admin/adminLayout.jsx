@@ -4,7 +4,9 @@ import Nav from "./nav";
 import Sidebar from "./sidebar";
 import Content from "./content";
 
+
 const AdminLayout = ({ children }) => {
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -12,6 +14,7 @@ const AdminLayout = ({ children }) => {
   };
   return (
     <>
+
       <div className="flex min-h-screen">
         <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <div className="flex flex-col flex-1 ">
@@ -23,6 +26,7 @@ const AdminLayout = ({ children }) => {
           <Content>{children}</Content>
         </div>
       </div>
+
     </>
   );
 };

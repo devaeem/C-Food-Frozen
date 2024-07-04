@@ -1,6 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/adminLayout";
+import {
+  useQuery,
+} from '@tanstack/react-query'
 import Alert from "@mui/material/Alert";
 import ClearIcon from "@mui/icons-material/Clear";
 import { IconButton } from "@mui/material";
@@ -32,19 +35,39 @@ const Page = () => {
   const [editId, setEditId] = useState("");
   const [successEdit, setSuccessEdit] = useState(false);
 
-  useEffect(() => {
-    LoadData(search, page, pageSize);
-  }, [search, page, pageSize]);
-  const LoadData = (search, page, pageSize) => {
-    getCategories(search, page, pageSize)
-      .then((res) => {
+  // useEffect(() => {
+  //   LoadData(search, page, pageSize);
+  // }, [search, page, pageSize]);
+  // const LoadData = (search, page, pageSize) => {
+  //   getCategories(search, page, pageSize)
+  //     .then((res) => {
+  //       setCategoryList(res.data.category);
+  //       setTotalPages(res.data.totalPages);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
+
+
+
+  const { isPending, error, data: listData } = useQuery({
+    queryKey: ['list-data-category', { search, page, pageSize }],
+    queryFn: async () => {
+      try {
+        const res = await getCategories(search, page, pageSize);
         setCategoryList(res.data.category);
         setTotalPages(res.data.totalPages);
-      })
-      .catch((err) => {
+        return res.data.category;
+      } catch (err) {
         console.log(err);
-      });
-  };
+        throw err; // โยน error ออกไปให้ React-Query จัดการ
+      }
+    }
+  });
+
+
+  console.log('listData', listData)
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,7 +78,6 @@ const Page = () => {
 
     createCategories(payload)
       .then((res) => {
-
         LoadData();
       })
       .catch((err) => {
@@ -78,7 +100,6 @@ const Page = () => {
   const handleClickOpenEdit = (id) => {
     setIsOpenDialogEdit(true);
     setEditId(id);
-
   };
 
   const handleDelCategory = (id) => {
@@ -186,7 +207,7 @@ const Page = () => {
             value={search}
           />
         </div>
-        {categoryList.length === 0 ? (
+        {listData?.length === 0 ? (
           <div className="mt-4 p-2 rounded-md">
             <Alert severity="info">ไม่พบข้อมูลหมวดหมู่สินค้า</Alert>
           </div>
@@ -218,7 +239,7 @@ const Page = () => {
                     </th>
                   </tr>
                 </thead>
-                {categoryList.map((category, index) => (
+                {listData?.map((category, index) => (
                   <>
                     <tbody className="bg-white divide-y divide-gray-200  ">
                       <tr key={index}>
