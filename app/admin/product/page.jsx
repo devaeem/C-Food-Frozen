@@ -69,6 +69,7 @@ const Page = () => {
   const handleClickOpenEdit = (id) => {
     setIsOpenDialogEdit(true);
     setEditId(id);
+    getDataId(id)
   };
 
   const handleClickOpenDel = (id) => {

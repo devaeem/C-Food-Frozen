@@ -63,13 +63,6 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
     if (name === "image") setImage(value);
   };
 
-  console.log("str", {
-    name,
-    categoryRef,
-    price,
-    description,
-  });
-
   const handleChangeImage = (event) => {
     const files = Array.from(event.target.files);
     const base64Images = [];
@@ -88,13 +81,6 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
   };
 
   const handleAddProduct = () => {
-    // const payload = {
-    //   name: "สินค้าลูกชิ้น 4",
-    //   desc: "สินค้าสำหรับทดสอบ 5",
-    //   price: 5000,
-    //   categoryId: "632daf96-ba3b-4f7b-bb9d-83b63862fc7a",
-    // };
-
     const payload = {
       name: name,
       categoryId: categoryRef,
@@ -102,11 +88,9 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
       desc: description,
       Image: images,
     };
-    console.log('payload', payload)
 
     createProduct(payload)
       .then((res) => {
-        console.log("res", res);
         setSuccess(true);
         loadData();
         handleClose();
@@ -166,7 +150,7 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
                 fullWidth
                 freeSolo
                 onChange={(event, newValue) => {
-                  console.log("newValue", newValue);
+
                   setCategoryRef(newValue?.id || "");
                 }}
                 getOptionLabel={(option) => option.name || ""}

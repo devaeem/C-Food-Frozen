@@ -37,7 +37,7 @@ const PopProduct = () => {
   const LoadData = (search, page, pageSize, categoryId) => {
     getProduct(search, page, 5, categoryId)
       .then((res) => {
-        setProductList(res.data.product);
+        setProductList(res.data.products);
         setTotalPages(res.data.totalPages);
         setLoading(false);
       })
@@ -71,9 +71,9 @@ const PopProduct = () => {
                 id="combo-box-demo"
                 options={categoryList || []}
                 freeSolo
-                style={{ width: "100%" }} // Adjust width as needed
+                style={{ width: "100%" }}
                 onChange={(event, newValue) => {
-                  setCategoryId(newValue?._id || "");
+                  setCategoryId(newValue?.id || "");
                 }}
                 getOptionLabel={(option) => option.name || ""}
                 renderInput={(params) => (
@@ -148,12 +148,12 @@ const PopProduct = () => {
                     <>
                       <div key={index} className="card bg-white shadow-md p-4">
                         <Image
-                          src={item.image[0]}
+                          src={item.images[0]?.url}
                           alt="Product 1"
                           className="w-full h-48  object-center cursor-pointer"
                           width={150}
                           height={150}
-                          onClick={() => router.push("/products/" + item._id)}
+                          onClick={() => router.push("/products/" + item.id)}
                         />
                         <h2 className="text-gray-900 font-bold text-2xl mt-2">
                           {item.name}

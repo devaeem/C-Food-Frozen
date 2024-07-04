@@ -55,6 +55,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
       .then((res) => {
         if (res.data.product) {
           setLoading(false);
+
           setData(res.data.product);
         }
       })
@@ -90,11 +91,12 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
   const handleUpdate = () => {
     const payload = {
       name: data.name,
-      categoryRef: categoryRef || data.categoryRef._id,
-      price: data.price,
+      categoryId: categoryRef || data.Category._id,
+      price: Number(data.price),
       desc: data.desc,
-      image: imageBase64 || data.image,
+      Image: imageBase64 || data.images,
     };
+
 
     updateProductId(editId, payload)
       .then((res) => {
@@ -149,7 +151,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   type="text"
                   fullWidth
                   onChange={(e) => setData({ ...data, name: e.target.value })}
-                  defaultValue={data.name}
+                  defaultValue={data?.name}
                   variant="standard"
                 />
               </Grid>
@@ -161,9 +163,9 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   options={categoryList || []}
                   fullWidth
                   freeSolo
-                  value={data.categoryRef}
+                  value={data?.Category}
                   onChange={(event, newValue) => {
-                    console.log("newValue", newValue);
+
                     setCategoryRef(newValue?._id || "");
                   }}
                   getOptionLabel={(option) => option.name || ""}
@@ -187,7 +189,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   type="number"
                   fullWidth
                   onChange={(e) => setData({ ...data, price: e.target.value })}
-                  defaultValue={data.price}
+                  defaultValue={data?.price}
                   variant="standard"
                 />
               </Grid>
@@ -201,7 +203,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   type="text"
                   fullWidth
                   onChange={(e) => setData({ ...data, desc: e.target.value })}
-                  defaultValue={data.desc}
+                  defaultValue={data?.desc}
                   variant="standard"
                 />
               </Grid>
@@ -220,36 +222,57 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                 />
               </Grid>
               <Grid item xs={12}>
+                {/* {data?.images?.map((item)=> (
+                    <>
+                    <h1>{item.id}</h1>
+                    </>
+                  )) } */}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                  {/* Render images with delete button */}
                   {(imageBase64 && imageBase64.length > 0
                     ? imageBase64
-                    : data.image
+                    : data?.images
                   ).map((imgSrc, index) => (
                     <div
                       key={index}
                       style={{
                         position: "relative",
-
                       }}
                     >
-                      <img
-                        src={imgSrc}
-                        alt={`Image ${index}`}
-                        style={{ objectFit: 'fill', width: '128px', height: '118px' }}
-                      />
+                      {imgSrc.url  && (
+                        <img
+                          src={imgSrc.url}
+                          alt={`Image ${index}`}
+                          style={{
+                            objectFit: "fill",
+                            width: "128px",
+                            height: "118px",
+                          }}
+                        />
+                      )}
+                      {imgSrc && !imgSrc.url &&  (
+                        <img
+                          src={imgSrc}
+                          alt={`Image ${index}`}
+                          style={{
+                            objectFit: "fill",
+                            width: "128px",
+                            height: "118px",
+                          }}
+                        />
+                      )}
+
                       <IconButton
                         style={{
                           position: "absolute",
                           top: "5px",
                           right: "5px",
                         }}
+                        // Uncomment the next line to enable the delete functionality
                         // onClick={() => handleDeleteImage(index)}
                       >
                         <DeleteIcon className="text-red-500" />
                       </IconButton>
-                      <span>{index === 0 ? 'รูปหลัก' : null}</span>
-
+                      {index === 0 && <span>รูปหลัก</span>}
                     </div>
                   ))}
                 </div>

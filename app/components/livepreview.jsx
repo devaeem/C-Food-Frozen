@@ -37,7 +37,7 @@ const Livepreview = () => {
                 <CarouselItem key={index} className="flex-grow-0 h-full">
                   <div className="p-1">
                     <Image
-                      src={data.image}
+                      src={data.images}
                       alt={`Image`}
                       layout="fit"
                       width={1592}
