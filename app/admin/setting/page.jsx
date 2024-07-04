@@ -1,6 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import AdminLayout from "../../components/admin/adminLayout";
+import {
+  useQuery,
+} from '@tanstack/react-query'
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import CreateIcon from "@mui/icons-material/Create";
@@ -11,6 +14,7 @@ import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import Image from "next/image";
 import Input from "@mui/material/Input";
+
 import {
   getBanner,
   createBanner,
@@ -33,19 +37,39 @@ const Page = () => {
   const [successEdit, setSuccessEdit] = useState(false);
   const [isOpenDialogEdit, setIsOpenDialogEdit] = useState(false);
 
-  useEffect(() => {
-    LoadData(search, page, pageSize);
-  }, [search, page, pageSize]);
-  const LoadData = (search, page, pageSize) => {
-    getBanner(search, page, pageSize)
-      .then((res) => {
+
+
+  const { isPending, error, data: listDataBanner } = useQuery({
+    queryKey: ['list-data-banner', { search, page, pageSize }],
+    queryFn: async () => {
+      try {
+        const res = await getBanner(search, page, pageSize);
         setBannerLList(res.data.banner);
         setTotalPages(res.data.totalPages);
-      })
-      .catch((err) => {
+        return res.data.banner;
+      } catch (err) {
         console.log(err);
-      });
-  };
+        throw err;
+      }
+    }
+  });
+
+  console.log('listDataBanner', listDataBanner)
+
+
+  // useEffect(() => {
+  //   LoadData(search, page, pageSize);
+  // }, [search, page, pageSize]);
+  // const LoadData = (search, page, pageSize) => {
+  //   getBanner(search, page, pageSize)
+  //     .then((res) => {
+  //       setBannerLList(res.data.banner);
+  //       setTotalPages(res.data.totalPages);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -216,7 +240,7 @@ const getDataId = (id) => {
                     </th>
                   </tr>
                 </thead>
-                {bannerList.map((banner, index) => (
+                {listDataBanner?.map((banner, index) => (
                   <>
                     <tbody className="bg-white divide-y divide-gray-200  ">
                       <tr key={index}>
@@ -281,7 +305,7 @@ const getDataId = (id) => {
           }}
           editId={editId}
           setSuccessEdit={setSuccessEdit}
-          LoadData={LoadData}
+
 
         />
       )}

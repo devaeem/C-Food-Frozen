@@ -61,10 +61,12 @@ const Page = () => {
         return res.data.category;
       } catch (err) {
         console.log(err);
-        throw err; // โยน error ออกไปให้ React-Query จัดการ
+        throw err;
       }
     }
   });
+
+
 
 
   console.log('listData', listData)
@@ -293,8 +295,8 @@ const Page = () => {
           }}
           editId={editId}
           setSuccessEdit={setSuccessEdit}
-          LoadData={LoadData}
-          // handleDelCategory={handleDelCategory}
+
+
         />
       )}
 

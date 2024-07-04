@@ -11,6 +11,9 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Skeleton from "@mui/material/Skeleton";
+import {
+  useQuery,
+} from '@tanstack/react-query'
 import { getCategoriesId, updateCategoriesId } from "../../../../func/api";
 const CustomDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -21,26 +24,31 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const DialogEdit = ({ handleClose, editId,setSuccessEdit,LoadData }) => {
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    resData();
-  }, []);
+const DialogEdit = ({ handleClose, editId,setSuccessEdit }) => {
 
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
 
-  const resData = () => {
-    getCategoriesId(editId)
-      .then((res) => {
-        if (res.data.category) {
-          setLoading(false);
-          setData(res.data.category);
-        }
-      })
-      .catch((err) => {
+  const { isPending, error, data: listGetData } = useQuery({
+    queryKey: ['list-data-category', { editId }],
+    queryFn: async () => {
+      try {
+        const res = await getCategoriesId(editId);
+        setLoading(false);
+        setData(res.data.category);
+        return res.data.category;
+      } catch (err) {
         console.log(err);
-      });
-  };
+        throw err;
+      }
+    }
+  });
+  console.log('listGetData', listGetData)
+
+
+
+
+
 
 
   const handleUpdate = () => {
@@ -71,7 +79,7 @@ const DialogEdit = ({ handleClose, editId,setSuccessEdit,LoadData }) => {
         open
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          แก้ไขหมวดหมู่สินค้า:{editId}
+          แก้ไขหมวดหมู่สินค้า:{listGetData?.id}
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -100,7 +108,7 @@ const DialogEdit = ({ handleClose, editId,setSuccessEdit,LoadData }) => {
                   label="ชื่อหมวดหมู่สินค้า"
                   type="text"
                   onChange={(e) => setData({ ...data, name: e.target.value })}
-                  defaultValue={data.name}
+                  defaultValue={listGetData?.name}
                   fullWidth
                   variant="standard"
                 />

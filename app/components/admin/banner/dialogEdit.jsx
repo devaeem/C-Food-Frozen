@@ -23,7 +23,7 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
+const DialogEdit = ({ handleClose, editId, setSuccessEdit }) => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [imageBase64, setImageBase64] = useState("");
