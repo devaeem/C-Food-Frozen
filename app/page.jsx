@@ -11,13 +11,11 @@ export default function Home() {
       <Header />
 
       <Livepreview />
-      <div className="h-screen">
-      <PopProduct />
-      </div>
-      <div className="fixed">
-      <Footer />
-      </div>
 
+      <PopProduct />
+
+
+        <Footer />
 
     </>
   );

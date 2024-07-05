@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import Image from "next/image";
 import AddIcon from "@mui/icons-material/Add";
@@ -18,7 +19,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { getCategories } from "../../../../func/api";
 import { getProductId, updateProductId } from "../../../../func/productapi";
 import Skeleton from "@mui/material/Skeleton";
-const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
+const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
   const [categoryList, setCategoryList] = useState([]);
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -26,43 +27,47 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
-  // const CustomDialog = styled(Dialog)(({ theme }) => ({
-  //   "& .MuiDialogContent-root": {
-  //     padding: theme.spacing(2),
-  //   },
-  //   "& .MuiDialogActions-root": {
-  //     padding: theme.spacing(1),
-  //   },
-  // }));
-  useEffect(() => {
-    fatchData(search, page, pageSize);
-    resData();
-  }, [search, page, pageSize]);
 
-  const fatchData = (search, page, pageSize) => {
-    getCategories(search, page, pageSize)
-      .then((res) => {
-        setCategoryList(res.data.category);
+
+  const {
+    isPending,
+    error,
+    data: listCategory,
+    isLoading,
+  } = useQuery({
+    queryKey: ["list-category-edit-product", { search, page, pageSize }],
+    queryFn: async () => {
+      try {
+        const res = await getCategories(search, page, pageSize);
         setTotalPages(res.data.totalPages);
-      })
-      .catch((err) => {
+        return res.data.category;
+      } catch (err) {
         console.log(err);
-      });
-  };
+        throw err;
+      }
+    },
+  });
 
-  const resData = () => {
-    getProductId(editId)
-      .then((res) => {
-        if (res.data.product) {
-          setLoading(false);
 
-          setData(res.data.product);
-        }
-      })
-      .catch((err) => {
+
+  const {
+
+    data: listProductGetData,
+  } = useQuery({
+    queryKey: ["list-get-productId", { editId }],
+    queryFn: async () => {
+      try {
+        const res = await getProductId(editId);
+        setLoading(false)
+        return res.data.product;
+      } catch (err) {
         console.log(err);
-      });
-  };
+        throw err;
+      }
+    },
+  });
+
+
 
   const [name, setName] = useState("");
   const [categoryRef, setCategoryRef] = useState("");
@@ -71,23 +76,67 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
   const [image, setImage] = useState("");
   const [imageBase64, setImageBase64] = useState([]);
 
-  const handleChangeImage = (event) => {
-    const files = Array.from(event.target.files);
-    const base64Images = [];
 
-    files.forEach((file) => {
+  const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => {
-        base64Images.push(reader.result);
-        // Update state only after all files are read
-        if (base64Images.length === files.length) {
-          setImageBase64((prevImages) => [...prevImages, ...base64Images]);
-        }
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target.result;
+
+
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          let width = 500;
+          let height = 500;
+
+          canvas.width = 500;
+          canvas.height = 500;
+
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob((blob) => {
+            resolve(blob);
+          }, file.type);
+        };
       };
-      reader.onerror = (error) => console.error("Error reading file:", error);
     });
   };
+
+  const handleChangeImage = async (event) => {
+    const files = Array.from(event.target.files);
+    const resizedImages = [];
+
+    for (const file of files) {
+      const resizedBlob = await resizeImage(file, 800, 800); // Adjust maxWidth and maxHeight as needed
+      const resizedDataURL = URL.createObjectURL(resizedBlob);
+      resizedImages.push(resizedDataURL);
+    }
+
+    setImageBase64((prevImages) => [...prevImages, ...resizedImages]);
+  };
+
+  const updateProduct = useMutation({
+    mutationFn: async (payload) => {
+      return await updateProductId(editId, payload);
+    },
+    onSuccess: (res) => {
+      refetch();
+      setSuccessEdit(true);
+      handleClose();
+    },
+    onError: (err) => {
+      console.log(err);
+      handleClose();
+    },
+  });
+
+
+
   const handleUpdate = () => {
     const payload = {
       name: data.name,
@@ -96,19 +145,9 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
       desc: data.desc,
       Image: imageBase64 || data.images,
     };
+    updateProduct.mutate(payload);
 
 
-    updateProductId(editId, payload)
-      .then((res) => {
-        if (res.data) {
-          handleClose();
-          LoadData();
-          setSuccessEdit(true);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   return (
@@ -122,7 +161,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
         style={{ padding: 4 }}
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          แก้ไขสินค้า:{editId}
+          แก้ไขสินค้า:{listProductGetData?.id}
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -150,8 +189,8 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   label="ชื่อสินค้า"
                   type="text"
                   fullWidth
-                  onChange={(e) => setData({ ...data, name: e.target.value })}
-                  defaultValue={data?.name}
+                  onChange={(e) => setData({ ...listProductGetData, name: e.target.value })}
+                  defaultValue={listProductGetData?.name}
                   variant="standard"
                 />
               </Grid>
@@ -160,10 +199,10 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   disablePortal
                   required
                   id="combo-box-demo"
-                  options={categoryList || []}
+                  options={listCategory || []}
                   fullWidth
                   freeSolo
-                  value={data?.Category}
+                  value={listProductGetData?.Category}
                   onChange={(event, newValue) => {
 
                     setCategoryRef(newValue?._id || "");
@@ -188,8 +227,8 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   label="ราคาสินค้า"
                   type="number"
                   fullWidth
-                  onChange={(e) => setData({ ...data, price: e.target.value })}
-                  defaultValue={data?.price}
+                  onChange={(e) => setData({ ...listProductGetData, price: e.target.value })}
+                  defaultValue={listProductGetData?.price}
                   variant="standard"
                 />
               </Grid>
@@ -202,8 +241,8 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                   label="รายละเอียดสินค้า"
                   type="text"
                   fullWidth
-                  onChange={(e) => setData({ ...data, desc: e.target.value })}
-                  defaultValue={data?.desc}
+                  onChange={(e) => setData({ ...listProductGetData, desc: e.target.value })}
+                  defaultValue={listProductGetData?.desc}
                   variant="standard"
                 />
               </Grid>
@@ -230,7 +269,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, LoadData }) => {
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                   {(imageBase64 && imageBase64.length > 0
                     ? imageBase64
-                    : data?.images
+                    : listProductGetData?.images
                   ).map((imgSrc, index) => (
                     <div
                       key={index}

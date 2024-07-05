@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import AdminLayout from "../../components/admin/adminLayout";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import DialogProduct from "../../components/admin/product/dialogproduct";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
@@ -11,16 +12,15 @@ import Alert from "@mui/material/Alert";
 import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import Image from "next/image";
+
 import {
   getProduct,
   getProductId,
-  delProductId,
 } from "../../../func/productapi";
 import DialogDel from "../../components/admin/product/dialogDel";
 import DialogEdit from "../../components/admin/product/dialogEdit";
 const Page = () => {
   const [isOpenDialog, setIsOpenDialog] = useState(false);
-  const [productList, setProductList] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
@@ -29,22 +29,27 @@ const Page = () => {
   const [successEdit, setSuccessEdit] = useState(false);
   const [del, setDel] = useState(false);
   const [isOpenDialogDel, setIsOpenDialogDel] = useState(false);
-  const [productData, setProductDataData] = useState({});
   const [isOpenDialogEdit, setIsOpenDialogEdit] = useState(false);
   const [editId, setEditId] = useState("");
-  useEffect(() => {
-    LoadData(search, page, pageSize);
-  }, [search, page, pageSize]);
-  const LoadData = (search, page, pageSize) => {
-    getProduct(search, page, pageSize)
-      .then((res) => {
-        setProductList(res.data.products);
+
+  const {
+    isPending,
+    error,
+    data: listDataProduct,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["list-data-product", { search, page, pageSize }],
+    queryFn: async () => {
+      try {
+        const res = await getProduct(search, page, pageSize);
         setTotalPages(res.data.totalPages);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+        return res.data.products;
+      } catch (err) {
+        throw err;
+      }
+    },
+  });
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -54,39 +59,19 @@ const Page = () => {
     setIsOpenDialog(true);
   };
 
-  const handleDelProduct = (id) => {
-    delProductId(id)
-      .then((res) => {
-        setIsOpenDialogDel(false);
-        LoadData();
-        setDel(true);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+
 
   const handleClickOpenEdit = (id) => {
     setIsOpenDialogEdit(true);
     setEditId(id);
-    getDataId(id)
   };
 
   const handleClickOpenDel = (id) => {
     setIsOpenDialogDel(true);
-    getDataId(id);
+    setEditId(id);
   };
 
-  const getDataId = (id) => {
-    getProductId(id)
-      .then((res) => {
-        setProductDataData(res.data.product);
-      })
-      .catch((err) => {
-        console.log(err);
-        setIsOpenDialogDel(false);
-      });
-  };
+
 
   return (
     <AdminLayout>
@@ -156,7 +141,7 @@ const Page = () => {
             value={search}
           />
         </div>
-        {productList.length === 0 ? (
+        {listDataProduct?.length === 0 ? (
           <div className="mt-4 p-2 rounded-md">
             <Alert severity="info">ไม่พบข้อมูลสินค้า</Alert>
           </div>
@@ -214,7 +199,7 @@ const Page = () => {
                     </th>
                   </tr>
                 </thead>
-                {productList.map((product, index) => (
+                {listDataProduct?.map((product, index) => (
                   <>
                     <tbody className="bg-white divide-y divide-gray-200  ">
                       <tr key={index}>
@@ -222,7 +207,7 @@ const Page = () => {
                           {index + 1}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {product.name}
+                          {product?.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {product.images[0]?.url ? (
@@ -288,7 +273,7 @@ const Page = () => {
             setIsOpenDialog(false);
           }}
           setSuccess={setSuccess}
-          loadData={LoadData}
+          refetch={refetch}
         />
       )}
 
@@ -299,7 +284,7 @@ const Page = () => {
           }}
           editId={editId}
           setSuccessEdit={setSuccessEdit}
-          LoadData={LoadData}
+          refetch={refetch}
         />
       )}
 
@@ -308,8 +293,9 @@ const Page = () => {
           handleClose={() => {
             setIsOpenDialogDel(false);
           }}
-          productData={productData}
-          handleDelProduct={handleDelProduct}
+          editId={editId}
+          refetch={refetch}
+          setDel={setDel}
         />
       )}
     </AdminLayout>

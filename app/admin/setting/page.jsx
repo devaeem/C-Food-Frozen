@@ -1,9 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import AdminLayout from "../../components/admin/adminLayout";
-import {
-  useQuery,
-} from '@tanstack/react-query'
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import CreateIcon from "@mui/icons-material/Create";
@@ -18,8 +16,6 @@ import Input from "@mui/material/Input";
 import {
   getBanner,
   createBanner,
-  getBannerId,
-  delBannerId,
 } from "../../../func/banner";
 import DialogDel from "../../components/admin/banner/dialogDel";
 import DialogEdit from "../../components/admin/banner/dialogEdit";
@@ -29,47 +25,44 @@ const Page = () => {
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
-  const [bannerList, setBannerLList] = useState([]);
   const [isOpenDialogDel, setIsOpenDialogDel] = useState(false);
-  const [bannerData, setBannerData] = useState({});
   const [success, setSuccess] = useState(false);
   const [editId, setEditId] = useState("");
   const [successEdit, setSuccessEdit] = useState(false);
   const [isOpenDialogEdit, setIsOpenDialogEdit] = useState(false);
 
-
-
-  const { isPending, error, data: listDataBanner } = useQuery({
-    queryKey: ['list-data-banner', { search, page, pageSize }],
+  const {
+    isPending,
+    error,
+    data: listDataBanner,
+    refetch,
+  } = useQuery({
+    queryKey: ["list-data-banner", { search, page, pageSize }],
     queryFn: async () => {
       try {
         const res = await getBanner(search, page, pageSize);
-        setBannerLList(res.data.banner);
-        setTotalPages(res.data.totalPages);
         return res.data.banner;
       } catch (err) {
-        console.log(err);
+
         throw err;
       }
-    }
+    },
   });
 
-  console.log('listDataBanner', listDataBanner)
+  const createBanners = useMutation({
+    mutationFn: async (payload) => {
+      return await createBanner(payload);
+    },
+    onSuccess: (res) => {
+      refetch();
+      setImage64("");
+      setCreateData(true);
+    },
+    onError: (err) => {
+      throw err;
 
-
-  // useEffect(() => {
-  //   LoadData(search, page, pageSize);
-  // }, [search, page, pageSize]);
-  // const LoadData = (search, page, pageSize) => {
-  //   getBanner(search, page, pageSize)
-  //     .then((res) => {
-  //       setBannerLList(res.data.banner);
-  //       setTotalPages(res.data.totalPages);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
+    },
+  });
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -81,65 +74,48 @@ const Page = () => {
     const payload = {
       images: image64,
     };
-
-    createBanner(payload)
-      .then((res) => {
-        LoadData();
-        setImage64("");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
+    createBanners.mutate(payload);
   };
 
   const handleChangeImage = (event) => {
-   const file = event.target.files[0];
-   const reader = new FileReader();
+    const file = event.target.files[0];
+    const reader = new FileReader();
 
-   reader.onloadend = () => {
-    setImage64(reader.result);
-   };
+    reader.onloadend = () => {
+      const img = new window.Image();
+      img.src = reader.result;
 
-   if (file) {
-     reader.readAsDataURL(file);
-   }
- };
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
 
- const handleDelBanner = (id) => {
-  delBannerId(id)
-    .then((res) => {
-      setIsOpenDialogDel(false);
-      LoadData();
-      setSuccess(true);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-};
+        let width = 1599;
+        let height = 488;
 
-const handleClickOpenEdit = (id) => {
- setIsOpenDialogEdit(true);
- setEditId(id);
+        canvas.width = 1599;
+        canvas.height = 488;
 
-};
+        ctx.drawImage(img, 0, 0, width, height);
 
- const handleClickOpenDel = (id) => {
-  setIsOpenDialogDel(true);
-  getDataId(id);
+        const resizedDataURL = canvas.toDataURL(file.type);
+        setImage64(resizedDataURL);
+      };
+    };
 
-};
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
 
-const getDataId = (id) => {
- getBannerId(id)
-   .then((res) => {
-    setBannerData(res.data.banner);
-   })
-   .catch((err) => {
-     console.log(err);
-     setIsOpenDialogDel(false);
-   });
-};
+  const handleClickOpenEdit = (id) => {
+    setIsOpenDialogEdit(true);
+    setEditId(id);
+  };
+
+  const handleClickOpenDel = (id) => {
+    setIsOpenDialogDel(true);
+    setEditId(id);
+  };
 
   return (
     <>
@@ -165,7 +141,7 @@ const getDataId = (id) => {
                 type="file"
                 fullWidth
                 inputProps={{ accept: "image/*" }}
-                 onChange={handleChangeImage}
+                onChange={handleChangeImage}
                 variant="standard"
               />
 
@@ -177,41 +153,41 @@ const getDataId = (id) => {
               </button>
 
               {image64 && (
-                  <Image
-                    src={image64}
-                    width={300}
-                    height={300}
-                    className="mt-4"
-                    alt="Picture of the author"
-                    style={{ objectFit: "contain" }}
-                  />
-                )}
+                <Image
+                  src={image64}
+                  width={300}
+                  height={300}
+                  className="mt-4"
+                  alt="Picture of the author"
+                  style={{ objectFit: "contain" }}
+                />
+              )}
             </form>
           </div>
 
           {successEdit && (
-          <div className="mt-2 p-2 rounded-md">
-            <Alert severity="success">
-              {" "}
-              อัพเดพ Banner สำเร็จ
-              <IconButton onClick={() => setSuccessEdit(false)}>
-                <ClearIcon />
-              </IconButton>
-            </Alert>
-          </div>
-        )}
+            <div className="mt-2 p-2 rounded-md">
+              <Alert severity="success">
+                {" "}
+                อัพเดพ Banner สำเร็จ
+                <IconButton onClick={() => setSuccessEdit(false)}>
+                  <ClearIcon />
+                </IconButton>
+              </Alert>
+            </div>
+          )}
 
           {success && (
-          <div className="mt-2 p-2 rounded-md">
-            <Alert severity="success">
-              {" "}
-              ลบ Banner สำเร็จ
-              <IconButton onClick={() => setSuccess(false)}>
-                <ClearIcon />
-              </IconButton>
-            </Alert>
-          </div>
-        )}
+            <div className="mt-2 p-2 rounded-md">
+              <Alert severity="success">
+                {" "}
+                ลบ Banner สำเร็จ
+                <IconButton onClick={() => setSuccess(false)}>
+                  <ClearIcon />
+                </IconButton>
+              </Alert>
+            </div>
+          )}
 
           <div className="flex-1 mt-8 w-full">
             <h1 className="text-xl font-extrabold">ภาพ แบนนเนอร์</h1>
@@ -250,7 +226,7 @@ const getDataId = (id) => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {banner.images ? (
                             <Image
-                               src={banner.images}
+                              src={banner.images}
                               width={120}
                               height={120}
                               alt="Picture of the author"
@@ -266,14 +242,14 @@ const getDataId = (id) => {
                             <Button
                               variant="contained"
                               startIcon={<CreateIcon />}
-                               onClick={() => handleClickOpenEdit(banner.id)}
+                              onClick={() => handleClickOpenEdit(banner.id)}
                             >
                               แก้ไข
                             </Button>
                             <Button
                               variant="outlined"
                               startIcon={<DeleteIcon />}
-                               onClick={() => handleClickOpenDel(banner.id)}
+                              onClick={() => handleClickOpenDel(banner.id)}
                             >
                               ลบ
                             </Button>
@@ -305,8 +281,7 @@ const getDataId = (id) => {
           }}
           editId={editId}
           setSuccessEdit={setSuccessEdit}
-
-
+          refetch={refetch}
         />
       )}
 
@@ -315,8 +290,8 @@ const getDataId = (id) => {
           handleClose={() => {
             setIsOpenDialogDel(false);
           }}
-          bannerData={bannerData}
-          handleDelBanner={handleDelBanner}
+          editId={editId}
+          refetch={refetch}
         />
       )}
     </>

@@ -1,9 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AdminLayout from "../../components/admin/adminLayout";
-import {
-  useQuery,
-} from '@tanstack/react-query'
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Alert from "@mui/material/Alert";
 import ClearIcon from "@mui/icons-material/Clear";
 import { IconButton } from "@mui/material";
@@ -11,83 +9,66 @@ import Pagination from "@mui/material/Pagination";
 import Button from "@mui/material/Button";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  getCategories,
-  createCategories,
-  getCategoriesId,
-  delCategoriesId,
-} from "../../../func/api";
+import { getCategories, createCategories } from "../../../func/api";
 import DialogDel from "../../components/admin/category/dialogDel";
 import DialogEdit from "../../components/admin/category/dialogEdit";
 
 const Page = () => {
   const [categoryName, setCategoryName] = useState("");
   const [data, setData] = useState(false);
-  const [categoryList, setCategoryList] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [isOpenDialogDel, setIsOpenDialogDel] = useState(false);
   const [isOpenDialogEdit, setIsOpenDialogEdit] = useState(false);
-  const [categoryData, setCategoryData] = useState({});
   const [success, setSuccess] = useState(false);
   const [editId, setEditId] = useState("");
   const [successEdit, setSuccessEdit] = useState(false);
 
-  // useEffect(() => {
-  //   LoadData(search, page, pageSize);
-  // }, [search, page, pageSize]);
-  // const LoadData = (search, page, pageSize) => {
-  //   getCategories(search, page, pageSize)
-  //     .then((res) => {
-  //       setCategoryList(res.data.category);
-  //       setTotalPages(res.data.totalPages);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
-
-
-
-  const { isPending, error, data: listData } = useQuery({
-    queryKey: ['list-data-category', { search, page, pageSize }],
+  const {
+    isPending,
+    error,
+    data: listData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["list-data-category", { search, page, pageSize }],
     queryFn: async () => {
       try {
         const res = await getCategories(search, page, pageSize);
-        setCategoryList(res.data.category);
         setTotalPages(res.data.totalPages);
         return res.data.category;
       } catch (err) {
-        console.log(err);
+
         throw err;
       }
-    }
+    },
   });
 
+  const createCategory = useMutation({
+    mutationFn: async (payload) => {
+      return await createCategories(payload);
+    },
+    onSuccess: (res) => {
+      refetch();
+      setCategoryName("");
+      setData(true);
+    },
+    onError: (err) => {
+        throw err;
 
+    },
+  });
 
-
-  console.log('listData', listData)
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
       name: categoryName,
     };
 
-    createCategories(payload)
-      .then((res) => {
-        LoadData();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    // setCategoryName("");
-    setData(true);
+    createCategory.mutate(payload);
   };
 
   const handlePageChange = (event, value) => {
@@ -96,7 +77,7 @@ const Page = () => {
 
   const handleClickOpenDel = (id) => {
     setIsOpenDialogDel(true);
-    getDataId(id);
+    setEditId(id);
   };
 
   const handleClickOpenEdit = (id) => {
@@ -104,28 +85,6 @@ const Page = () => {
     setEditId(id);
   };
 
-  const handleDelCategory = (id) => {
-    delCategoriesId(id)
-      .then((res) => {
-        setIsOpenDialogDel(false);
-        LoadData();
-        setSuccess(true);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const getDataId = (id) => {
-    getCategoriesId(id)
-      .then((res) => {
-        setCategoryData(res.data.category);
-      })
-      .catch((err) => {
-        console.log(err);
-        setIsOpenDialogDel(false);
-      });
-  };
   return (
     <AdminLayout>
       <div className="flex flex-col items-start justify-start">
@@ -191,6 +150,10 @@ const Page = () => {
             </button>
           </form>
         </div>
+
+        <span className="text-red-600 mt-5">
+          * หากลบหมวดหมู่ ถ้ามีการเลือกสินค้าจะไม่สามารถลบหมวดหมู่ได้
+        </span>
 
         <div className="flex-1 mt-8 w-full">
           <label
@@ -283,8 +246,9 @@ const Page = () => {
           handleClose={() => {
             setIsOpenDialogDel(false);
           }}
-          categoryData={categoryData}
-          handleDelCategory={handleDelCategory}
+          editId={editId}
+          setSuccess={setSuccess}
+          refetch={refetch}
         />
       )}
 
@@ -294,9 +258,8 @@ const Page = () => {
             setIsOpenDialogEdit(false);
           }}
           editId={editId}
+          refetch={refetch}
           setSuccessEdit={setSuccessEdit}
-
-
         />
       )}
 

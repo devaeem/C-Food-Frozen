@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import { styled } from "@mui/material/styles";
@@ -23,34 +24,60 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const DialogEdit = ({ handleClose, editId, setSuccessEdit }) => {
+const DialogEdit = ({ handleClose, editId, setSuccessEdit,refetch }) => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [imageBase64, setImageBase64] = useState("");
 
-  useEffect(() => {
-    resData();
-  }, []);
 
-  const resData = () => {
-    getBannerId(editId)
-      .then((res) => {
-        if (res.data.banner) {
-          setLoading(false);
-          setData(res.data.banner);
-        }
-      })
-      .catch((err) => {
+
+
+  const {
+    isPending,
+    error,
+    data: listBannerGetData,
+  } = useQuery({
+    queryKey: ["list-get-Banner", { editId }],
+    queryFn: async () => {
+      try {
+        const res = await getBannerId(editId);
+        setLoading(false)
+        return res.data.banner;
+      } catch (err) {
         console.log(err);
-      });
-  };
+        throw err;
+      }
+    },
+  });
+
+
+
+
+
 
   const handleChangeImage = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
 
     reader.onloadend = () => {
-      setImageBase64(reader.result);
+      const img = new window.Image();
+      img.src = reader.result;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        let width = 1599;
+        let height = 488;
+
+        canvas.width = 1599;
+        canvas.height = 488;
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const resizedDataURL = canvas.toDataURL(file.type);
+        setImageBase64(resizedDataURL);
+      };
     };
 
     if (file) {
@@ -58,22 +85,29 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit }) => {
     }
   };
 
+  const updateBanner = useMutation({
+    mutationFn: async (payload) => {
+      return await updateBannerId(editId, payload);
+    },
+    onSuccess: (res) => {
+      refetch();
+      setSuccessEdit(true);
+      handleClose();
+    },
+    onError: (err) => {
+      console.log(err);
+      handleClose();
+    },
+  });
+
+
+
   const handleUpdate = () => {
     const payload = {
       images: imageBase64 || data.images,
     };
+    updateBanner.mutate(payload);
 
-    updateBannerId(editId, payload)
-      .then((res) => {
-        if (res.data) {
-          LoadData();
-          setSuccessEdit(true);
-          handleClose();
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   return (
@@ -85,7 +119,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit }) => {
       open
     >
       <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        แก้ไข Banner: {editId}
+        แก้ไข Banner: {listBannerGetData?.id}
       </DialogTitle>
       <IconButton
         aria-label="close"
@@ -130,11 +164,11 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit }) => {
 
             <Grid item xs={12}>
               <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                {!imageBase64 && data.image && (
+                {!imageBase64 && listBannerGetData.images && (
                   <Image
-                    src={data.image}
-                    width={300}
-                    height={300}
+                    src={listBannerGetData?.images}
+                    width={380}
+                    height={280}
                     alt="Current Banner Image"
                     style={{ objectFit: "contain" }}
                   />
@@ -143,8 +177,8 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit }) => {
                 {imageBase64 && (
                   <Image
                     src={imageBase64}
-                    width={300}
-                    height={300}
+                    width={380}
+                    height={280}
                     alt="Updated Banner Image"
                     style={{ objectFit: "contain" }}
                   />

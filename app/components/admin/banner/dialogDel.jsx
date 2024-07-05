@@ -1,12 +1,50 @@
 "use client";
 import React from 'react'
+import { useQuery,useMutation } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-const DialogDel = ({handleClose,bannerData,handleDelBanner}) => {
+import { getBannerId,delBannerId } from "../../../../func/banner";
+const DialogDel = ({handleClose,refetch,editId}) => {
+  const {
+    isPending,
+    error,
+    data: listGetBannerDelData,
+  } = useQuery({
+    queryKey: ["list-get-del-banner", { editId }],
+    queryFn: async () => {
+      try {
+        const res = await getBannerId(editId);
+        return res.data.banner;
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
+    },
+  });
+
+
+  const delBanner = useMutation({
+    mutationFn: async (id) => {
+       return await delBannerId(id);
+    },
+    onSuccess: (res) => {
+      refetch();
+      setSuccess(true);
+      handleClose();
+    },
+    onError: (err) => {
+      console.log(err);
+      handleClose();
+    },
+  });
+
+  const handleDelBanner = (id) =>{
+    delBanner.mutate(id);
+  }
   return (
     <>
      <Dialog
@@ -16,7 +54,7 @@ const DialogDel = ({handleClose,bannerData,handleDelBanner}) => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {bannerData._id}
+          {listGetBannerDelData?.id}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -26,7 +64,7 @@ const DialogDel = ({handleClose,bannerData,handleDelBanner}) => {
         <DialogActions>
           <Button onClick={handleClose}>ยกเลิก</Button>
           <Button
-          onClick={() => handleDelBanner(bannerData.id)}
+          onClick={() => handleDelBanner(listGetBannerDelData?.id)}
           >
             ลบ Banner
           </Button>

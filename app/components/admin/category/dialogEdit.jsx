@@ -11,9 +11,7 @@ import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Skeleton from "@mui/material/Skeleton";
-import {
-  useQuery,
-} from '@tanstack/react-query'
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCategoriesId, updateCategoriesId } from "../../../../func/api";
 const CustomDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -24,13 +22,16 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const DialogEdit = ({ handleClose, editId,setSuccessEdit }) => {
-
+const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
 
-  const { isPending, error, data: listGetData } = useQuery({
-    queryKey: ['list-data-category', { editId }],
+  const {
+    isPending,
+    error,
+    data: listGetData,
+  } = useQuery({
+    queryKey: ["list-get-category", { editId }],
     queryFn: async () => {
       try {
         const res = await getCategoriesId(editId);
@@ -41,32 +42,28 @@ const DialogEdit = ({ handleClose, editId,setSuccessEdit }) => {
         console.log(err);
         throw err;
       }
-    }
+    },
   });
-  console.log('listGetData', listGetData)
 
-
-
-
-
-
+  const updateCategory = useMutation({
+    mutationFn: async (payload) => {
+      return await updateCategoriesId(editId, payload);
+    },
+    onSuccess: (res) => {
+      refetch();
+      setSuccessEdit(true);
+      handleClose();
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   const handleUpdate = () => {
-    const payload ={
+    const payload = {
       name: data.name,
-    }
-    updateCategoriesId(editId, payload)
-      .then((res) => {
-        if (res.data) {
-          LoadData();
-          setSuccessEdit(true);
-          handleClose();
-
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    };
+    updateCategory.mutate(payload);
   };
 
   return (

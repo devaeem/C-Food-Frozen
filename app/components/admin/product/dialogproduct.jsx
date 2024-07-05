@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import Image from "next/image";
 import axios from "axios";
@@ -16,35 +17,33 @@ import CloseIcon from "@mui/icons-material/Close";
 import Input from "@mui/material/Input";
 import { getCategories } from "../../../../func/api";
 import { createProduct } from "../../../../func/productapi";
-const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
-  const [categoryList, setCategoryList] = useState([]);
+const DialogProduct = ({ handleClose, refetch, setSuccess }) => {
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
-  // const CustomDialog = styled(Dialog)(({ theme }) => ({
-  //   "& .MuiDialogContent-root": {
-  //     padding: theme.spacing(2),
-  //   },
-  //   "& .MuiDialogActions-root": {
-  //     padding: theme.spacing(1),
-  //   },
-  // }));
-  useEffect(() => {
-    LoadData(search, page, pageSize);
-  }, [search, page, pageSize]);
 
-  const LoadData = (search, page, pageSize) => {
-    getCategories(search, page, pageSize)
-      .then((res) => {
-        setCategoryList(res.data.category);
+  const {
+    isPending,
+    error,
+    data: listCategory,
+    isLoading,
+  } = useQuery({
+    queryKey: ["list-category", { search, page, pageSize }],
+    queryFn: async () => {
+      try {
+        const res = await getCategories(search, page, pageSize);
         setTotalPages(res.data.totalPages);
-      })
-      .catch((err) => {
+        return res.data.category;
+      } catch (err) {
         console.log(err);
-      });
-  };
+        throw err;
+      }
+    },
+  });
+
+
 
   const [name, setName] = useState("");
   const [categoryRef, setCategoryRef] = useState("");
@@ -63,22 +62,63 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
     if (name === "image") setImage(value);
   };
 
-  const handleChangeImage = (event) => {
-    const files = Array.from(event.target.files);
-    const base64Images = [];
-
-    files.forEach((file) => {
+  const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => {
-        base64Images.push(reader.result);
-        if (base64Images.length === files.length) {
-          setImages((prevImages) => [...prevImages, ...base64Images]);
-        }
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target.result;
+
+
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          let width = 500;
+          let height = 500;
+
+          canvas.width = 500;
+          canvas.height = 500;
+
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob((blob) => {
+            resolve(blob);
+          }, file.type);
+        };
       };
-      reader.onerror = (error) => console.error("Error reading file:", error);
     });
   };
+
+  const handleChangeImage = async (event) => {
+    const files = Array.from(event.target.files);
+    const resizedImages = [];
+
+    for (const file of files) {
+      const resizedBlob = await resizeImage(file, 800, 800); // Adjust maxWidth and maxHeight as needed
+      const resizedDataURL = URL.createObjectURL(resizedBlob);
+      resizedImages.push(resizedDataURL);
+    }
+
+    setImages((prevImages) => [...prevImages, ...resizedImages]);
+  };
+
+  const createProducts = useMutation({
+    mutationFn: async (payload) => {
+      return await createProduct(payload);
+    },
+    onSuccess: (res) => {
+      refetch();
+      setSuccess(true);
+      handleClose();
+    },
+    onError: (err) => {
+      handleClose();
+      console.log(err);
+    },
+  });
 
   const handleAddProduct = () => {
     const payload = {
@@ -88,16 +128,9 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
       desc: description,
       Image: images,
     };
+    createProducts.mutate(payload);
 
-    createProduct(payload)
-      .then((res) => {
-        setSuccess(true);
-        loadData();
-        handleClose();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+
   };
 
   return (
@@ -146,11 +179,10 @@ const DialogProduct = ({ handleClose, setSuccess, loadData }) => {
                 disablePortal
                 required
                 id="combo-box-demo"
-                options={categoryList || []}
+                options={listCategory || []}
                 fullWidth
                 freeSolo
                 onChange={(event, newValue) => {
-
                   setCategoryRef(newValue?.id || "");
                 }}
                 getOptionLabel={(option) => option.name || ""}

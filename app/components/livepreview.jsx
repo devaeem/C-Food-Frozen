@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-
+import React from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   Carousel,
   CarouselContent,
@@ -12,20 +12,38 @@ import {
 import { getBanner } from "../../func/banner";
 import Image from "next/image";
 const Livepreview = () => {
-  const [images, setImages] = useState([]);
+  // const [images, setImages] = useState([]);
 
-  useEffect(() => {
-    LoadData();
-  }, []);
-  const LoadData = () => {
-    getBanner()
-      .then((res) => {
-        setImages(res.data.banner);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  const {
+    isPending,
+    error,
+    data: listImageBanner,
+    refetch,
+  } = useQuery({
+    queryKey: ["list-image-banner"],
+    queryFn: async () => {
+      try {
+        const res = await getBanner();
+        return res.data.banner;
+      } catch (err) {
+
+        throw err;
+      }
+    },
+  });
+
+  // useEffect(() => {
+  //   LoadData();
+  // }, []);
+  // const LoadData = () => {
+  //   getBanner()
+  //     .then((res) => {
+  //       setImages(res.data.banner);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
 
   return (
     <>
@@ -33,11 +51,11 @@ const Livepreview = () => {
         <div className="w-full max-w-[100rem] h-full relative">
           <Carousel className="w-full h-full">
             <CarouselContent className="flex h-full">
-              {images.map((data, index) => (
+              {listImageBanner?.map((data, index) => (
                 <CarouselItem key={index} className="flex-grow-0 h-full">
                   <div className="p-1">
                     <Image
-                      src={data.images}
+                      src={data?.images}
                       alt={`Image`}
                       layout="fit"
                       width={1592}
