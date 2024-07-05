@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Link from "next/link";
 import Button from "@mui/material/Button";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -10,12 +10,25 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useSession,signOut } from "next-auth/react"
 import { useRouter } from "next/navigation";
+
 const Nav = ({setIsSidebarOpen,toggleSidebar}) => {
+
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const router = useRouter();
-  const { data: session } = useSession();
+
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -36,7 +49,7 @@ const Nav = ({setIsSidebarOpen,toggleSidebar}) => {
         </div>
         <div className=" flex gap-4">
           <Avatar sx={{ bgcolor: deepOrange[500] }} onClick={handleClick}>
-            AM
+           {session?.user?.username}
           </Avatar>
 
           <Menu
