@@ -8,9 +8,14 @@ import Avatar from "@mui/material/Avatar";
 import { deepOrange, deepPurple } from "@mui/material/colors";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import { useSession,signOut } from "next-auth/react"
+import { useRouter } from "next/navigation";
 const Nav = ({setIsSidebarOpen,toggleSidebar}) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  const router = useRouter();
+  const { data: session } = useSession();
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -49,6 +54,7 @@ const Nav = ({setIsSidebarOpen,toggleSidebar}) => {
               <Button
                 variant="contained"
                 startIcon={<LogoutIcon />}
+                onClick={() => signOut({ callbackUrl: '/login' })}
                 className="bg-red-800 hover:bg-red-600 text-white   md:flex lg:flex"
               >
                 ออกจากระบบ

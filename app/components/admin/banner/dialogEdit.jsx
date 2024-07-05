@@ -14,7 +14,8 @@ import Skeleton from "@mui/material/Skeleton";
 import { getBannerId, updateBannerId } from "../../../../func/banner";
 import Image from "next/image";
 import Input from "@mui/material/Input";
-
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
 const CustomDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
@@ -24,7 +25,9 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const DialogEdit = ({ handleClose, editId, setSuccessEdit,refetch }) => {
+const DialogEdit = ({ handleClose, editId, setSuccessEdit,refetch,token }) => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [imageBase64, setImageBase64] = useState("");
@@ -86,8 +89,8 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit,refetch }) => {
   };
 
   const updateBanner = useMutation({
-    mutationFn: async (payload) => {
-      return await updateBannerId(editId, payload);
+    mutationFn: async ({token,editId,payload}) => {
+      return await updateBannerId({token,editId, payload});
     },
     onSuccess: (res) => {
       refetch();
@@ -106,7 +109,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit,refetch }) => {
     const payload = {
       images: imageBase64 || data.images,
     };
-    updateBanner.mutate(payload);
+    updateBanner.mutate({token,editId,payload});
 
   };
 

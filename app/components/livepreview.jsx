@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Carousel,
   CarouselContent,
@@ -12,8 +12,6 @@ import {
 import { getBanner } from "../../func/banner";
 import Image from "next/image";
 const Livepreview = () => {
-  // const [images, setImages] = useState([]);
-
   const {
     isPending,
     error,
@@ -26,24 +24,10 @@ const Livepreview = () => {
         const res = await getBanner();
         return res.data.banner;
       } catch (err) {
-
         throw err;
       }
     },
   });
-
-  // useEffect(() => {
-  //   LoadData();
-  // }, []);
-  // const LoadData = () => {
-  //   getBanner()
-  //     .then((res) => {
-  //       setImages(res.data.banner);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
 
   return (
     <>

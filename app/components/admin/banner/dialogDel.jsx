@@ -8,7 +8,11 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { getBannerId,delBannerId } from "../../../../func/banner";
-const DialogDel = ({handleClose,refetch,editId}) => {
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
+const DialogDel = ({handleClose,refetch,editId,token}) => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const {
     isPending,
     error,
@@ -28,8 +32,8 @@ const DialogDel = ({handleClose,refetch,editId}) => {
 
 
   const delBanner = useMutation({
-    mutationFn: async (id) => {
-       return await delBannerId(id);
+    mutationFn: async ({token,id}) => {
+       return await delBannerId({token,id});
     },
     onSuccess: (res) => {
       refetch();
@@ -43,7 +47,7 @@ const DialogDel = ({handleClose,refetch,editId}) => {
   });
 
   const handleDelBanner = (id) =>{
-    delBanner.mutate(id);
+    delBanner.mutate({token,id});
   }
   return (
     <>

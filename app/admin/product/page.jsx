@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import AdminLayout from "../../components/admin/adminLayout";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import DialogProduct from "../../components/admin/product/dialogproduct";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
@@ -12,14 +12,16 @@ import Alert from "@mui/material/Alert";
 import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import Image from "next/image";
-
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
 import {
-  getProduct,
-  getProductId,
+  getProduct
 } from "../../../func/productapi";
 import DialogDel from "../../components/admin/product/dialogDel";
 import DialogEdit from "../../components/admin/product/dialogEdit";
 const Page = () => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -31,6 +33,15 @@ const Page = () => {
   const [isOpenDialogDel, setIsOpenDialogDel] = useState(false);
   const [isOpenDialogEdit, setIsOpenDialogEdit] = useState(false);
   const [editId, setEditId] = useState("");
+
+
+  const token = session?.user?.accessToken;
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
 
   const {
     isPending,
@@ -274,6 +285,7 @@ const Page = () => {
           }}
           setSuccess={setSuccess}
           refetch={refetch}
+          token={token}
         />
       )}
 
@@ -285,6 +297,7 @@ const Page = () => {
           editId={editId}
           setSuccessEdit={setSuccessEdit}
           refetch={refetch}
+          token={token}
         />
       )}
 
@@ -296,6 +309,7 @@ const Page = () => {
           editId={editId}
           refetch={refetch}
           setDel={setDel}
+          token={token}
         />
       )}
     </AdminLayout>

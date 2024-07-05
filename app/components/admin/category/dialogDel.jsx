@@ -8,7 +8,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { getCategoriesId, delCategoriesId } from "../../../../func/api";
-const DialogDel = ({ handleClose, editId, setSuccess,refetch }) => {
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
+const DialogDel = ({ handleClose, editId, setSuccess,refetch,token }) => {
   const {
     isPending,
     error,
@@ -27,8 +29,8 @@ const DialogDel = ({ handleClose, editId, setSuccess,refetch }) => {
   });
 
   const delCategory = useMutation({
-    mutationFn: async (id) => {
-       return await delCategoriesId(id);
+    mutationFn: async ({token,id}) => {
+       return await delCategoriesId({token,id});
     },
     onSuccess: (res) => {
       refetch();
@@ -42,7 +44,7 @@ const DialogDel = ({ handleClose, editId, setSuccess,refetch }) => {
   });
 
   const handleDelCategory = (id) => {
-    delCategory.mutate(id);
+    delCategory.mutate({token,id});
   };
 
   return (

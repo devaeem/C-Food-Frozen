@@ -19,7 +19,11 @@ import {
 } from "../../../func/banner";
 import DialogDel from "../../components/admin/banner/dialogDel";
 import DialogEdit from "../../components/admin/banner/dialogEdit";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
 const Page = () => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [image64, setImage64] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -30,6 +34,16 @@ const Page = () => {
   const [editId, setEditId] = useState("");
   const [successEdit, setSuccessEdit] = useState(false);
   const [isOpenDialogEdit, setIsOpenDialogEdit] = useState(false);
+
+
+  const token = session?.user?.accessToken;
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
+
 
   const {
     isPending,
@@ -50,8 +64,8 @@ const Page = () => {
   });
 
   const createBanners = useMutation({
-    mutationFn: async (payload) => {
-      return await createBanner(payload);
+    mutationFn: async ({token,payload}) => {
+      return await createBanner({token,payload});
     },
     onSuccess: (res) => {
       refetch();
@@ -74,7 +88,7 @@ const Page = () => {
     const payload = {
       images: image64,
     };
-    createBanners.mutate(payload);
+    createBanners.mutate({token,payload});
   };
 
   const handleChangeImage = (event) => {
@@ -282,6 +296,7 @@ const Page = () => {
           editId={editId}
           setSuccessEdit={setSuccessEdit}
           refetch={refetch}
+          token={token}
         />
       )}
 
@@ -292,6 +307,7 @@ const Page = () => {
           }}
           editId={editId}
           refetch={refetch}
+          token={token}
         />
       )}
     </>

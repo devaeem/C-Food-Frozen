@@ -13,6 +13,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import Skeleton from "@mui/material/Skeleton";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCategoriesId, updateCategoriesId } from "../../../../func/api";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 const CustomDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
@@ -22,9 +24,23 @@ const CustomDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
+const DialogEdit = ({
+  handleClose,
+  editId,
+  setSuccessEdit,
+  refetch,
+  token,
+}) => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
 
   const {
     isPending,
@@ -46,8 +62,8 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
   });
 
   const updateCategory = useMutation({
-    mutationFn: async (payload) => {
-      return await updateCategoriesId(editId, payload);
+    mutationFn: async ({ token, editId, payload }) => {
+      return await updateCategoriesId({ token, editId, payload });
     },
     onSuccess: (res) => {
       refetch();
@@ -63,7 +79,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
     const payload = {
       name: data.name,
     };
-    updateCategory.mutate(payload);
+    updateCategory.mutate({ token, editId, payload });
   };
 
   return (

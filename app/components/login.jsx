@@ -2,15 +2,32 @@
 
 import React, { useState } from "react";
 import Button from "@mui/material/Button";
+import { useRouter } from 'next/navigation'
+import { useSession,signIn } from "next-auth/react";
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const router = useRouter()
+  const { data: session } = useSession();
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("users", { email, password });
-    alert(email + " " + password);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const result = await signIn('credentials', {
+        redirect: false,
+        username:username,
+        password:password,
+      })
+
+      if (result.error) {
+        console.error(result.error)
+      } else {
+        router.push('/admin')
+      }
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
   return (
     <>
       <div className="min-h-screen flex items-start justify-center  ">
@@ -29,9 +46,9 @@ const Login = () => {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="email"
-                type="email"
+                type="text"
                 placeholder="Enter your email"
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="mb-6">

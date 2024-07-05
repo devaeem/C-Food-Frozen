@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 import { getProduct } from "../../func/productapi";
 import { getCategories } from "../../func/api";
 import { useRouter } from "next/navigation";
@@ -12,7 +13,8 @@ import Skeleton from "@mui/material/Skeleton";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Link from "next/link";
-const PopProduct = ({ fgb, allpage }) => {
+import debounce from "lodash/debounce";
+const PopProduct = ({ fgb, allpage,listp }) => {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -29,32 +31,49 @@ const PopProduct = ({ fgb, allpage }) => {
   const [totalPagesCate, setTotalPagesCate] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  console.log("categoryId", categoryId);
+  const [searchTerm, setSearchTerm] = useState('');
+  const {
+    isPending,
+    error,
+    data: listAllProducts,
+    refetch,
+  } = useQuery({
+    queryKey: ["list-all-product", { search, page, pageSize, categoryId }],
+    queryFn: async () => {
+      try {
+        const res = await getProduct(search, page, listp ? listp : pageSize, categoryId);
 
-  useEffect(() => {
-    LoadData(search, page, pageSize, categoryId);
-    LoadCate(searchCate, pageCate, pageSizeCate);
-  }, [search, page, pageSize, categoryId, searchCate, pageCate, pageSizeCate]);
-  const LoadData = (search, page, pageSize, categoryId) => {
-    getProduct(search, page, 5, categoryId)
-      .then((res) => {
-        setProductList(res.data.products);
         setTotalPages(res.data.totalPages);
         setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+        return res.data.products;
+      } catch (err) {
+        throw err;
+      }
+    },
+  });
 
-  const LoadCate = (searchCate, pageCate, pageSizeCate) => {
-    getCategories(searchCate, pageCate, pageSizeCate)
-      .then((res) => {
-        setCategoryList(res.data.category);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const { data: listAllCategories } = useQuery({
+    queryKey: ["list-all-categories", { searchCate, pageCate, pageSizeCate }],
+    queryFn: async () => {
+      try {
+        const res = await getCategories(searchCate, pageCate, pageSizeCate);
+        setTotalPages(res.data.totalPages);
+        setLoading(false);
+        return res.data.category;
+      } catch (err) {
+        throw err;
+      }
+    },
+  });
+
+  const handleSearchChange = debounce((value) => {
+    setSearch(value);
+  }, 900);
+
+  const handleChange = (e) => {
+    const { value } = e.target;
+    setSearchTerm(value)
+    handleSearchChange(value);
   };
 
   const handlePageChange = (event, value) => {
@@ -70,7 +89,7 @@ const PopProduct = ({ fgb, allpage }) => {
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                options={categoryList || []}
+                options={listAllCategories || []}
                 freeSolo
                 style={{ width: "100%" }}
                 onChange={(event, newValue) => {
@@ -93,8 +112,8 @@ const PopProduct = ({ fgb, allpage }) => {
                 type="text"
                 variant="outlined"
                 placeholder="ค้นหาชื่อสินค้า"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchTerm}
+                onChange={handleChange}
                 fullWidth
               />
             </Grid>
@@ -105,7 +124,7 @@ const PopProduct = ({ fgb, allpage }) => {
             {fgb ? fgb : "สินค้ายอดนิยม"}
           </h1>
         </div>
-        {productList.length === 0 ? (
+        {listAllProducts?.length === 0 ? (
           <div className="mt-4 p-2 rounded-md">
             <Alert severity="info">ไม่พบสินค้า</Alert>
           </div>
@@ -147,7 +166,7 @@ const PopProduct = ({ fgb, allpage }) => {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                  {productList.map((item, index) => (
+                  {listAllProducts?.map((item, index) => (
                     <>
                       <div key={index} className="card bg-white shadow-md p-4">
                         <Image

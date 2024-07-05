@@ -1,31 +1,28 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import Header from "../../components/header";
 import Link from "next/link";
-import Chip from "@mui/material/Chip";
-import Image from "next/image";
+
 import { getProductId } from "../../../func/productapi";
 import CarouselComponent from "../../components/CarouselComponent";
 const Page = () => {
   const params = useParams();
   const { id } = params;
 
-  const [productData, setProductData] = useState({});
-
-  useEffect(() => {
-    getDataId(id);
-  }, []);
-
-  const getDataId = (id) => {
-    getProductId(id)
-      .then((res) => {
-        setProductData(res.data.product);
-      })
-      .catch((err) => {
+  const { data: listProductGet } = useQuery({
+    queryKey: ["list-get-productId-show", { id }],
+    queryFn: async () => {
+      try {
+        const res = await getProductId(id);
+        return res.data.product;
+      } catch (err) {
         console.log(err);
-      });
-  };
+        throw err;
+      }
+    },
+  });
 
   const products = [
     {
@@ -67,21 +64,23 @@ const Page = () => {
             </div>
             <div className="flex flex-col justify-center">
               <h1 className="text-gray-900 font-bold text-4xl mb-4">
-                {productData?.name}
+                {listProductGet?.name}
               </h1>
               <h4 className="text-gray-400 font-semibold text-xl mb-3">
-                รหัสสินค้า: {id}
+                รหัสสินค้า: {listProductGet?.id}
               </h4>
               <h4 className="text-gray-500 font-semibold text-lg mb-3">
                 หมวดหมู่สินค้า:{" "}
                 <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2">
-                  {productData?.Category?.name}
+                  {listProductGet?.Category?.name}
                 </span>
               </h4>
 
-              <p className="text-gray-600 text-lg mb-6">{productData?.desc}</p>
+              <p className="text-gray-600 text-lg mb-6">
+                {listProductGet?.desc}
+              </p>
               <p className="text-gray-900 font-bold text-3xl mb-6">
-                ฿{productData?.price}
+                ฿{listProductGet?.price}
               </p>
               <button className="px-6 py-3 bg-blue-500 text-white text-lg font-bold rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700">
                 สนใจสินค้านี้

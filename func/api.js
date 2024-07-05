@@ -10,19 +10,34 @@ export const getCategories = async (search, page, pageSize) => {
   return await axios.get(url, { params });
 };
 
-export const createCategories = async (payload) =>
-  await axios.post(process.env.NEXT_PUBLIC_API + "/category", payload);
-// await axios.post("http://localhost:3000/api/category",payload);
+export const createCategories = async ({token, payload}) =>{
+  return await axios.post(process.env.NEXT_PUBLIC_API + "/category", payload, {
+    headers: {
+      authtoken:token,
+    },
+  });
 
+}
 
 export const getCategoriesId = async (id) => {
   return await axios.get(process.env.NEXT_PUBLIC_API + `/category/${id}`);
-}
+};
 
-export const updateCategoriesId = async (editId,data) => {
-  return await axios.put(process.env.NEXT_PUBLIC_API + `/category/${editId}`,data);
-}
-
-export const delCategoriesId = async (id) => {
-  return await axios.delete(process.env.NEXT_PUBLIC_API + `/category/${id}`);
-}
+export const updateCategoriesId = async ({token,editId, payload}) => {
+  return await axios.put(
+    process.env.NEXT_PUBLIC_API + `/category/${editId}`,
+    payload,{
+      headers: {
+        authtoken:token,
+      },
+    }
+  );
+};
+[]
+export const delCategoriesId = async ({token,id}) => {
+  return await axios.delete(process.env.NEXT_PUBLIC_API + `/category/${id}`,{
+    headers: {
+      authtoken:token,
+    },
+  });
+};

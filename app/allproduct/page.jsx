@@ -7,7 +7,7 @@ const Page = () => {
     <>
       <Header />
 
-      <PopProduct  fgb={'รายการสินค้าทั้งหมด'} allpage={1}/>
+      <PopProduct  fgb={'รายการสินค้าทั้งหมด'} allpage={1} listp={20}/>
       <Footer />
     </>
   );

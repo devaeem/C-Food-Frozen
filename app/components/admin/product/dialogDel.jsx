@@ -8,8 +8,11 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { getProductId,delProductId } from "../../../../func/productapi";
-const DialogDel = ({handleClose, editId,refetch, setDel}) => {
-
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
+const DialogDel = ({handleClose, editId,refetch, setDel,token}) => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const {
     isPending,
     error,
@@ -28,8 +31,8 @@ const DialogDel = ({handleClose, editId,refetch, setDel}) => {
   });
 
   const delProduct = useMutation({
-    mutationFn: async (id) => {
-       return await delProductId(id);
+    mutationFn: async ({token,id}) => {
+       return await delProductId({token,id});
     },
     onSuccess: (res) => {
       refetch();
@@ -43,7 +46,7 @@ const DialogDel = ({handleClose, editId,refetch, setDel}) => {
   });
 
   const handleDelProduct =(id)=>{
-    delProduct.mutate(id);
+    delProduct.mutate({token,id});
   }
 
   return (

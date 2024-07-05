@@ -19,27 +19,29 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { getCategories } from "../../../../func/api";
 import { getProductId, updateProductId } from "../../../../func/productapi";
 import Skeleton from "@mui/material/Skeleton";
-const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
-  const [categoryList, setCategoryList] = useState([]);
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+const DialogEdit = ({
+  handleClose,
+  editId,
+  setSuccessEdit,
+  refetch,
+  token,
+}) => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
-  const [totalPages, setTotalPages] = useState(1);
 
-
-  const {
-    isPending,
-    error,
-    data: listCategory,
-    isLoading,
-  } = useQuery({
+  const { data: listCategory } = useQuery({
     queryKey: ["list-category-edit-product", { search, page, pageSize }],
     queryFn: async () => {
       try {
         const res = await getCategories(search, page, pageSize);
-        setTotalPages(res.data.totalPages);
+
         return res.data.category;
       } catch (err) {
         console.log(err);
@@ -48,17 +50,13 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
     },
   });
 
-
-
-  const {
-
-    data: listProductGetData,
-  } = useQuery({
+  const { data: listProductGetData } = useQuery({
     queryKey: ["list-get-productId", { editId }],
     queryFn: async () => {
       try {
         const res = await getProductId(editId);
-        setLoading(false)
+        setLoading(false);
+        setData(res.data.product)
         return res.data.product;
       } catch (err) {
         console.log(err);
@@ -67,8 +65,6 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
     },
   });
 
-
-
   const [name, setName] = useState("");
   const [categoryRef, setCategoryRef] = useState("");
   const [price, setPrice] = useState("");
@@ -76,16 +72,13 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
   const [image, setImage] = useState("");
   const [imageBase64, setImageBase64] = useState([]);
 
-
-  const resizeImage = (file, maxWidth, maxHeight) => {
+  const resizeImage = (file) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (event) => {
         const img = new window.Image();
         img.src = event.target.result;
-
-
 
         img.onload = () => {
           const canvas = document.createElement("canvas");
@@ -95,7 +88,6 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
 
           canvas.width = 500;
           canvas.height = 500;
-
 
           ctx.drawImage(img, 0, 0, width, height);
 
@@ -121,8 +113,8 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
   };
 
   const updateProduct = useMutation({
-    mutationFn: async (payload) => {
-      return await updateProductId(editId, payload);
+    mutationFn: async ({ token, editId, payload }) => {
+      return await updateProductId({ token, editId, payload });
     },
     onSuccess: (res) => {
       refetch();
@@ -135,19 +127,16 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
     },
   });
 
-
-
   const handleUpdate = () => {
     const payload = {
       name: data.name,
-      categoryId: categoryRef || data.Category._id,
+      categoryId: categoryRef || listProductGetData.Category.id,
       price: Number(data.price),
-      desc: data.desc,
-      Image: imageBase64 || data.images,
+      desc: data.description,
+      Image: imageBase64 || listProductGetData.images,
     };
-    updateProduct.mutate(payload);
 
-
+    updateProduct.mutate({token,editId,payload});
   };
 
   return (
@@ -185,12 +174,12 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
                   required
                   margin="dense"
                   id="name"
-                  name="name55"
+                  name="name"
                   label="ชื่อสินค้า"
                   type="text"
                   fullWidth
-                  onChange={(e) => setData({ ...listProductGetData, name: e.target.value })}
-                  defaultValue={listProductGetData?.name}
+                  onChange={(e) => setData({ ...data, name: e.target.value })}
+                  defaultValue={data?.name}
                   variant="standard"
                 />
               </Grid>
@@ -204,7 +193,6 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
                   freeSolo
                   value={listProductGetData?.Category}
                   onChange={(event, newValue) => {
-
                     setCategoryRef(newValue?._id || "");
                   }}
                   getOptionLabel={(option) => option.name || ""}
@@ -227,7 +215,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
                   label="ราคาสินค้า"
                   type="number"
                   fullWidth
-                  onChange={(e) => setData({ ...listProductGetData, price: e.target.value })}
+                  onChange={(e) => setData({ ...data, price: e.target.value })}
                   defaultValue={listProductGetData?.price}
                   variant="standard"
                 />
@@ -241,7 +229,9 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
                   label="รายละเอียดสินค้า"
                   type="text"
                   fullWidth
-                  onChange={(e) => setData({ ...listProductGetData, desc: e.target.value })}
+                  onChange={(e) =>
+                    setData({ ...data, desc: e.target.value })
+                  }
                   defaultValue={listProductGetData?.desc}
                   variant="standard"
                 />
@@ -277,7 +267,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
                         position: "relative",
                       }}
                     >
-                      {imgSrc.url  && (
+                      {imgSrc.url && (
                         <img
                           src={imgSrc.url}
                           alt={`Image ${index}`}
@@ -288,7 +278,7 @@ const DialogEdit = ({ handleClose, editId, setSuccessEdit, refetch }) => {
                           }}
                         />
                       )}
-                      {imgSrc && !imgSrc.url &&  (
+                      {imgSrc && !imgSrc.url && (
                         <img
                           src={imgSrc}
                           alt={`Image ${index}`}

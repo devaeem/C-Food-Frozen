@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import AdminLayout from "../../components/admin/adminLayout";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import Alert from "@mui/material/Alert";
@@ -12,8 +12,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { getCategories, createCategories } from "../../../func/api";
 import DialogDel from "../../components/admin/category/dialogDel";
 import DialogEdit from "../../components/admin/category/dialogEdit";
-
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
 const Page = () => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [categoryName, setCategoryName] = useState("");
   const [data, setData] = useState(false);
   const [page, setPage] = useState(1);
@@ -25,6 +28,16 @@ const Page = () => {
   const [success, setSuccess] = useState(false);
   const [editId, setEditId] = useState("");
   const [successEdit, setSuccessEdit] = useState(false);
+
+
+  const token = session?.user?.accessToken;
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
+
 
   const {
     isPending,
@@ -46,9 +59,10 @@ const Page = () => {
     },
   });
 
+
   const createCategory = useMutation({
-    mutationFn: async (payload) => {
-      return await createCategories(payload);
+    mutationFn: async ({token,payload}) => {
+      return await createCategories({token,payload});
     },
     onSuccess: (res) => {
       refetch();
@@ -68,7 +82,7 @@ const Page = () => {
       name: categoryName,
     };
 
-    createCategory.mutate(payload);
+    createCategory.mutate({token,payload});
   };
 
   const handlePageChange = (event, value) => {
@@ -89,6 +103,7 @@ const Page = () => {
     <AdminLayout>
       <div className="flex flex-col items-start justify-start">
         <h1 className="text-4xl font-extrabold ">หมวดหมู่สินค้า </h1>
+
         {data && (
           <div className="mt-2 p-2 rounded-md">
             <Alert severity="success">
@@ -249,6 +264,7 @@ const Page = () => {
           editId={editId}
           setSuccess={setSuccess}
           refetch={refetch}
+          token={token}
         />
       )}
 
@@ -260,6 +276,7 @@ const Page = () => {
           editId={editId}
           refetch={refetch}
           setSuccessEdit={setSuccessEdit}
+          token={token}
         />
       )}
 

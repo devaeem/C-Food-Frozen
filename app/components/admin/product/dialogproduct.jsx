@@ -17,8 +17,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import Input from "@mui/material/Input";
 import { getCategories } from "../../../../func/api";
 import { createProduct } from "../../../../func/productapi";
-const DialogProduct = ({ handleClose, refetch, setSuccess }) => {
-
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
+const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
@@ -106,8 +109,8 @@ const DialogProduct = ({ handleClose, refetch, setSuccess }) => {
   };
 
   const createProducts = useMutation({
-    mutationFn: async (payload) => {
-      return await createProduct(payload);
+    mutationFn: async ({token,payload}) => {
+      return await createProduct({token,payload});
     },
     onSuccess: (res) => {
       refetch();
@@ -128,7 +131,7 @@ const DialogProduct = ({ handleClose, refetch, setSuccess }) => {
       desc: description,
       Image: images,
     };
-    createProducts.mutate(payload);
+    createProducts.mutate({token,payload});
 
 
   };

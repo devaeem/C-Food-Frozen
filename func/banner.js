@@ -10,18 +10,34 @@ export const getBanner = async (search, page, pageSize) => {
   return await axios.get(url, { params });
 };
 
-export const createBanner  = async (payload) =>
-  await axios.post(process.env.NEXT_PUBLIC_API + "/banner", payload);
-
+export const createBanner = async ({token,payload}) =>
+  await axios.post(process.env.NEXT_PUBLIC_API + "/banner", payload, {
+    headers: {
+      authtoken: token,
+    },
+  });
 
 export const getBannerId = async (id) => {
   return await axios.get(process.env.NEXT_PUBLIC_API + `/banner/${id}`);
-}
+};
 
-export const updateBannerId = async (editId,payload) => {
-  return await axios.put(process.env.NEXT_PUBLIC_API + `/banner/${editId}`,payload);
-}
+export const updateBannerId = async ({token,editId, payload}) => {
 
-export const delBannerId = async (id) => {
-  return await axios.delete(process.env.NEXT_PUBLIC_API + `/banner/${id}`);
-}
+  return await axios.put(
+    process.env.NEXT_PUBLIC_API + `/banner/${editId}`,
+    payload,
+    {
+      headers: {
+        authtoken: token,
+      },
+    }
+  );
+};
+
+export const delBannerId = async ({token,id}) => {
+  return await axios.delete(process.env.NEXT_PUBLIC_API + `/banner/${id}`, {
+    headers: {
+      authtoken: token,
+    },
+  });
+};
