@@ -10,7 +10,7 @@ const options = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const res = await fetch(`http://localhost:3001/api/login`, {
+        const res = await fetch(process.env.NEXT_PUBLIC_API+'/login', {
           method: "POST",
           body: JSON.stringify(credentials),
           headers: { "Content-Type": "application/json" },
