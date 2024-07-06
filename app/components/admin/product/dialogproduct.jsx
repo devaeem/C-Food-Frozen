@@ -65,7 +65,7 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
     if (name === "image") setImage(value);
   };
 
-  const resizeImage = (file, maxWidth, maxHeight) => {
+  const resizeImage = (file) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -73,23 +73,22 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
         const img = new window.Image();
         img.src = event.target.result;
 
-
-
         img.onload = () => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
-          let width = 500;
+          let width = 500
           let height = 500;
 
-          canvas.width = 500;
-          canvas.height = 500;
 
+
+
+          canvas.width = width;
+          canvas.height = height;
 
           ctx.drawImage(img, 0, 0, width, height);
 
-          canvas.toBlob((blob) => {
-            resolve(blob);
-          }, file.type);
+          const resizedBase64 = canvas.toDataURL(file.type);
+          resolve(resizedBase64);
         };
       };
     });
@@ -100,9 +99,8 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
     const resizedImages = [];
 
     for (const file of files) {
-      const resizedBlob = await resizeImage(file, 800, 800); // Adjust maxWidth and maxHeight as needed
-      const resizedDataURL = URL.createObjectURL(resizedBlob);
-      resizedImages.push(resizedDataURL);
+      const resizedBase64 = await resizeImage(file, 800, 800);
+      resizedImages.push(resizedBase64);
     }
 
     setImages((prevImages) => [...prevImages, ...resizedImages]);
@@ -131,7 +129,8 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
       desc: description,
       Image: images,
     };
-    createProducts.mutate({token,payload});
+    console.log('payload', payload)
+     createProducts.mutate({token,payload});
 
 
   };
