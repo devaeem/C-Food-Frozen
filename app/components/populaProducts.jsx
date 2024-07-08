@@ -14,7 +14,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Link from "next/link";
 import debounce from "lodash/debounce";
-const PopProduct = ({ fgb, allpage,listp }) => {
+const PopProduct = ({ fgb, allpage, listp }) => {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -31,7 +31,7 @@ const PopProduct = ({ fgb, allpage,listp }) => {
   const [totalPagesCate, setTotalPagesCate] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const {
     isPending,
     error,
@@ -41,7 +41,12 @@ const PopProduct = ({ fgb, allpage,listp }) => {
     queryKey: ["list-all-product", { search, page, pageSize, categoryId }],
     queryFn: async () => {
       try {
-        const res = await getProduct(search, page, listp ? listp : pageSize, categoryId);
+        const res = await getProduct(
+          search,
+          page,
+          listp ? listp : pageSize,
+          categoryId
+        );
 
         setTotalPages(res.data.totalPages);
         setLoading(false);
@@ -72,12 +77,16 @@ const PopProduct = ({ fgb, allpage,listp }) => {
 
   const handleChange = (e) => {
     const { value } = e.target;
-    setSearchTerm(value)
+    setSearchTerm(value);
     handleSearchChange(value);
   };
 
   const handlePageChange = (event, value) => {
     setPage(value);
+  };
+
+  const truncate = (str, num) => {
+    return str.length > num ? str.slice(0, num) + "..." : str;
   };
 
   return (
@@ -168,15 +177,18 @@ const PopProduct = ({ fgb, allpage,listp }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
                   {listAllProducts?.map((item, index) => (
                     <>
-                      <div key={index} className="card bg-white shadow-md p-4">
-                        <Image
-                          src={item.images[0]?.url}
-                          alt="Product 1"
-                          className="w-full h-48  object-center cursor-pointer"
-                          width={150}
-                          height={150}
-                          onClick={() => router.push("/products/" + item.id)}
-                        />
+                      <div key={index} className="card bg-white shadow-md p-4 w-50 h-50">
+                        <div className="w-[800] h-[700] overflow-hidden relative">
+                          <Image
+                            src={item.images[0]?.url}
+                            alt="Product 1"
+                            className="w-[800] h-[700]  cursor-pointer object-center"
+                            width={800}
+                            height={700}
+                            onClick={() => router.push("/products/" + item.id)}
+                          />
+                        </div>
+
                         <h2 className="text-gray-900 font-bold text-2xl mt-2">
                           {item.name}
                         </h2>
@@ -187,9 +199,17 @@ const PopProduct = ({ fgb, allpage,listp }) => {
                           </span>
                         </div>
                         <p className="mt-1">รายละเอียดสินค้า</p>
-                        <p className="mt-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                          {item.desc}
-                        </p>
+                        <div
+                          className="overflow-hidden text-ellipsis whitespace-nowrap"
+                          dangerouslySetInnerHTML={{
+                            __html: truncate(item.desc, 10),
+                          }}
+                        ></div>
+                        {/* <p className="mt-1 overflow-hidden text-ellipsis whitespace-nowrap">
+
+
+
+                        </p> */}
                       </div>
                     </>
                   ))}

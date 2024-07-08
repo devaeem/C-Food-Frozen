@@ -65,7 +65,21 @@ const CarouselComponent = ({ id }) => {
   return (
     <div className="p-3 border-r-2 border-stone-200">
       {/* Main Image */}
-      <div className="mb-4 w-full h-[350px]">
+
+      <div className="w-[800] h-[700] overflow-hidden relative mb-4">
+        <Image
+          src={listProductImageGet?.images[mainImageIndex]?.url}
+          alt="Product 1"
+          className="w-[800] h-[700]  cursor-pointer object-center"
+          width={800}
+          height={700}
+             objectFit="cover"
+          onClick={() => router.push("/products/" + item.id)}
+        />
+      </div>
+
+      {/* <div className="mb-4 w-full h-[350px]">
+
         <Image
           // className="min-w-full h-auto md:w-full lg:w-full xl:w-full object-cover max-w-7xl"
           src={listProductImageGet?.images[mainImageIndex]?.url}
@@ -77,12 +91,12 @@ const CarouselComponent = ({ id }) => {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="w-full h-full rounded-lg shadow-lg"
         />
-      </div>
+      </div> */}
       <Slider {...settings}>
         {listProductImageGet.images.map((imgSrc, index) => (
           <div key={imgSrc?.id} className="flex-1 gap-4">
             {listProductImageGet.images.length > 2 && (
-              <div className="mb-4 w-full h-full">
+              <div className="mb-4 w-full h-full relative">
                 <Image
                   className="w-[50] h-[30] rounded-lg shadow-lg"
                   src={imgSrc?.url}
@@ -94,11 +108,9 @@ const CarouselComponent = ({ id }) => {
                 />
               </div>
             )}
-
           </div>
         ))}
       </Slider>
-
     </div>
   );
 };

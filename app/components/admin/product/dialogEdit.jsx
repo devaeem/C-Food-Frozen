@@ -21,6 +21,7 @@ import { getProductId, updateProductId } from "../../../../func/productapi";
 import Skeleton from "@mui/material/Skeleton";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Tiptap from "./Tiptap";
 const DialogEdit = ({
   handleClose,
   editId,
@@ -56,7 +57,7 @@ const DialogEdit = ({
       try {
         const res = await getProductId(editId);
         setLoading(false);
-        setData(res.data.product)
+        setData(res.data.product);
         return res.data.product;
       } catch (err) {
         console.log(err);
@@ -83,11 +84,11 @@ const DialogEdit = ({
         img.onload = () => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
-          let width = 500;
-          let height = 500;
+          let width = 800;
+          let height = 800;
 
-          canvas.width = 500;
-          canvas.height = 500;
+          canvas.width = 800;
+          canvas.height = 800;
 
           ctx.drawImage(img, 0, 0, width, height);
 
@@ -132,11 +133,15 @@ const DialogEdit = ({
       name: data.name,
       categoryId: categoryRef || listProductGetData.Category.id,
       price: Number(data.price),
-      desc: data.description,
+      desc: data.desc,
       Image: imageBase64 || listProductGetData.images,
     };
 
-    updateProduct.mutate({token,editId,payload});
+    updateProduct.mutate({ token, editId, payload });
+  };
+
+  const handleDes = (reason) => {
+    setData({ ...data, desc: reason });
   };
 
   return (
@@ -206,7 +211,7 @@ const DialogEdit = ({
                   )}
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12}>
                 <TextField
                   required
                   margin="dense"
@@ -220,8 +225,14 @@ const DialogEdit = ({
                   variant="standard"
                 />
               </Grid>
-              <Grid item xs={6}>
-                <TextField
+              <Grid item xs={12}>
+                <Tiptap
+                  onChange={(newContent) => {
+                    handleDes(newContent);
+                  }}
+                  description={listProductGetData?.desc}
+                />
+                {/* <TextField
                   required
                   margin="dense"
                   id="description"
@@ -234,7 +245,7 @@ const DialogEdit = ({
                   }
                   defaultValue={listProductGetData?.desc}
                   variant="standard"
-                />
+                /> */}
               </Grid>
               <Grid item xs={12}>
                 <Input

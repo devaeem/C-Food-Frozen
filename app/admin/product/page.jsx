@@ -239,8 +239,9 @@ const Page = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {product.price}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {product.desc}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 overflow-hidden text-ellipsis ">
+                          <div dangerouslySetInnerHTML={{__html:product.desc}}></div>
+
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap  text-sm font-medium ">
                           <div className="flex items-center justify-start gap-2">

@@ -18,8 +18,9 @@ import Input from "@mui/material/Input";
 import { getCategories } from "../../../../func/api";
 import { createProduct } from "../../../../func/productapi";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation"
-const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
+import { useRouter } from "next/navigation";
+import Tiptap from "./Tiptap";
+const DialogProduct = ({ handleClose, refetch, setSuccess, token }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [page, setPage] = useState(1);
@@ -46,8 +47,6 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
     },
   });
 
-
-
   const [name, setName] = useState("");
   const [categoryRef, setCategoryRef] = useState("");
   const [price, setPrice] = useState(0);
@@ -61,7 +60,7 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
     if (name === "name") setName(value);
     if (name === "categoryRef") setCategoryRef(value);
     if (name === "price") setPrice(value);
-    if (name === "description") setDescription(value);
+    // if (name === "description") setDescription(value);
     if (name === "image") setImage(value);
   };
 
@@ -76,11 +75,8 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
         img.onload = () => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
-          let width = 500
-          let height = 500;
-
-
-
+          let width = 800;
+          let height = 800;
 
           canvas.width = width;
           canvas.height = height;
@@ -107,8 +103,8 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
   };
 
   const createProducts = useMutation({
-    mutationFn: async ({token,payload}) => {
-      return await createProduct({token,payload});
+    mutationFn: async ({ token, payload }) => {
+      return await createProduct({ token, payload });
     },
     onSuccess: (res) => {
       refetch();
@@ -129,10 +125,12 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
       desc: description,
       Image: images,
     };
-    console.log('payload', payload)
-     createProducts.mutate({token,payload});
 
+    createProducts.mutate({ token, payload });
+  };
 
+  const handleDes = (reason) => {
+    setDescription(reason);
   };
 
   return (
@@ -198,7 +196,7 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
                 )}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12}>
               <TextField
                 required
                 margin="dense"
@@ -212,8 +210,14 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
                 variant="standard"
               />
             </Grid>
-            <Grid item xs={6}>
-              <TextField
+            <Grid item xs={12}>
+              <Tiptap
+                onChange={(newContent) => {
+                  handleDes(newContent);
+                }}
+                description={description}
+              />
+              {/* <TextField
                 required
                 margin="dense"
                 id="description"
@@ -221,10 +225,10 @@ const DialogProduct = ({ handleClose, refetch, setSuccess,token }) => {
                 label="รายละเอียดสินค้า"
                 type="text"
                 fullWidth
-                value={description}
+
                 onChange={handleChange}
                 variant="standard"
-              />
+              /> */}
             </Grid>
             <Grid item xs={12}>
               <Input

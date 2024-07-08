@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Header from "../../components/header";
 import Link from "next/link";
-
+import Image from "next/image";
 import { getProductId, randomProduct } from "../../../func/productapi";
 import CarouselComponent from "../../components/CarouselComponent";
 const Page = () => {
@@ -103,9 +103,13 @@ const Page = () => {
                 </span>
               </h4>
 
-              <p className="text-gray-600 text-lg mb-6">
-                {listProductGet?.desc}
-              </p>
+              <div
+                className="overflow-hidden text-ellipsis whitespace-nowrap text-gray-600 text-lg mb-6"
+                dangerouslySetInnerHTML={{
+                  __html: listProductGet?.desc,
+                }}
+              ></div>
+
               <p className="text-gray-900 font-bold text-3xl mb-6">
                 ฿{listProductGet?.price}
               </p>
@@ -127,11 +131,21 @@ const Page = () => {
             >
               <Link href={`/products/${product?.id}`}>
                 <div>
-                  <img
+                  <div className="w-full h-64 overflow-hidden relative">
+                    <Image
+                      src={product.images[0]?.url}
+                      alt="Product 1"
+                      className="w-full h-64 object-cover cursor-pointer"
+                      width={800}
+                      height={700}
+                      onClick={() => router.push("/products/" + product.id)}
+                    />
+                  </div>
+                  {/* <img
                     className="w-full h-64 object-cover"
                     src={product?.images[0]?.url}
                     alt={product?.name}
-                  />
+                  /> */}
                   <div className="p-4">
                     <h2 className="text-gray-900 font-bold text-xl">
                       {product?.name}
