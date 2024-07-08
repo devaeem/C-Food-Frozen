@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import Image from "next/image";
-import axios from "axios";
+import TipTap from "./Tiptap";
 import AddIcon from "@mui/icons-material/Add";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
@@ -19,7 +19,7 @@ import { getCategories } from "../../../../func/api";
 import { createProduct } from "../../../../func/productapi";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Tiptap from "./Tiptap";
+
 const DialogProduct = ({ handleClose, refetch, setSuccess, token }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -211,7 +211,7 @@ const DialogProduct = ({ handleClose, refetch, setSuccess, token }) => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Tiptap
+              <TipTap
                 onChange={(newContent) => {
                   handleDes(newContent);
                 }}

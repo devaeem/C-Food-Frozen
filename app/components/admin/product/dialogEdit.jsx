@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import Button from "@mui/material/Button";
 import Image from "next/image";
+import TipTap from "./Tiptap";
 import AddIcon from "@mui/icons-material/Add";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
@@ -21,7 +22,7 @@ import { getProductId, updateProductId } from "../../../../func/productapi";
 import Skeleton from "@mui/material/Skeleton";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Tiptap from "./Tiptap";
+
 const DialogEdit = ({
   handleClose,
   editId,
@@ -226,7 +227,7 @@ const DialogEdit = ({
                 />
               </Grid>
               <Grid item xs={12}>
-                <Tiptap
+                <TipTap
                   onChange={(newContent) => {
                     handleDes(newContent);
                   }}
