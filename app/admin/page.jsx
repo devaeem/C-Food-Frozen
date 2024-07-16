@@ -16,10 +16,6 @@ console.log('session', session)
   }, [status, router]);
 
 
-
-
-
-
   return (
     <>
       <AdminLayout>
